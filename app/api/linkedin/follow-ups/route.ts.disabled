@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { getFollowUpSchedules, scheduleFollowUp, FollowUpRequest } from "@/lib/linkedin/follow-up-automation";
+import { z } from "zod";
+
+const scheduleFollowUpSchema = z.object({
+  connectionId: z.string(),
+  templateId: z.string(),
+  delayDays: z.number().min(1).max(30),
+  customMessage: z.string().optional(),
+  conditions: z.object({
+    requireAcceptedConnection: z.boolean().optional(),
+    skipIfUserResponded: z.boolean().optional(),
+    maxFollowUps: z.number().min(1).max(5).optional(),
+  }).optional(),
+});
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status") as any;
+    const connectionId = searchParams.get("connectionId") || undefined;
+    const upcoming = searchParams.get("upcoming") === "true";
+
+    const filters: any = {};
+    if (status && status !== "all") filters.status = status;
+    if (connectionId) filters.connectionId = connectionId;
+    if (upcoming) filters.upcoming = true;
+
+    const followUps = await getFollowUpSchedules(filters);
+
+    return NextResponse.json(followUps);
+  } catch (error) {
+    console.error("Error fetching follow-ups:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch follow-ups" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validation = scheduleFollowUpSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const followUpRequest: FollowUpRequest = validation.data;
+    const result = await scheduleFollowUp(followUpRequest);
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        followUpId: result.followUpId,
+        scheduledFor: result.scheduledFor,
+      });
+    } else {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      );
+    }
+  } catch (error) {
+    console.error("Error scheduling follow-up:", error);
+    return NextResponse.json(
+      { error: "Failed to schedule follow-up" },
+      { status: 500 }
+    );
+  }
+}

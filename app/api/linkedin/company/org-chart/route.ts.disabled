@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+import { getOrganizationalChart } from "@/lib/linkedin/company-research";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function POST(request: Request) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { companyIdentifier, department } = await request.json();
+
+    if (!companyIdentifier) {
+      return NextResponse.json(
+        { error: "Company identifier is required" },
+        { status: 400 }
+      );
+    }
+
+    const orgChart = await getOrganizationalChart(companyIdentifier, department);
+    return NextResponse.json(orgChart);
+  } catch (error) {
+    console.error("Failed to get organizational chart:", error);
+    return NextResponse.json(
+      { error: "Failed to get organizational chart" },
+      { status: 500 }
+    );
+  }
+}

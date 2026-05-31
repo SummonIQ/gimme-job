@@ -1,0 +1,129 @@
+{
+	"name": "Steven Bennett",
+	"contact": {
+		"phone": "406-579-8044",
+		"email": "steven@applab.io",
+		"github": "github.com/srclaunch"
+	},
+	"summary": "Seasoned software engineer with expertise in full-stack development, cloud infrastructure, and frontend technologies. Proven ability to drive project success through leadership, coding excellence, and automation.",
+	"skills": [
+		"Certified ScrumMaster",
+		"HTML",
+		"CSS/TailwindCSS",
+		"JavaScript/TypeScript",
+		"React",
+		"Next.js",
+		"Node.js",
+		"GraphQL",
+		"Docker",
+		"Kubernetes",
+		"AWS",
+		"Google Cloud",
+		"Azure",
+		"Linux/Unix",
+		"Python",
+		"shell scripting"
+	],
+	"work_experience": [
+		{
+			"company": "General Electric (Vernova)",
+			"role": "Senior React Developer",
+			"dates": "June 2024 – Current",
+			"responsibilities": [
+				"Built accessible, responsive UI components for a SaaS Web application.",
+				"Utilized Node.js, Vite, TypeScript, React, TailwindCSS for development.",
+				"Wrote unit tests using Vitest and Playwright.",
+				"Facilitated design validation through Storybook documentation.",
+				"Architected a cloud provider agnostic pipeline for deployment."
+			]
+		},
+		{
+			"company": "US Treasury Department",
+			"role": "Lead Engineer",
+			"dates": "December 2023 – June 2024",
+			"responsibilities": [
+				"Led team to create a unified platform for cloud resource provisioning.",
+				"Oversaw scrum ceremonies and collected team success metrics.",
+				"Mentored junior developers in frontend best practices.",
+				"Improved application accessibility and code quality."
+			]
+		},
+		{
+			"company": "Houghton Mifflin Harcourt",
+			"role": "Senior Engineer",
+			"dates": "June 2023 – December 2023",
+			"responsibilities": [
+				"Migrated legacy applications to a single Next.js 13 application.",
+				"Implemented core features of Next.js 13.",
+				"Optimized release pipeline to reduce build times."
+			]
+		},
+		{
+			"company": "Jaguar Land Rover",
+			"role": "Senior Engineer",
+			"dates": "November 2022 – June 2023",
+			"responsibilities": [
+				"Built a Web application for UI/UX researchers to embed prototypes.",
+				"Designed a scalable full stack application using VS Code Dev Containers.",
+				"Automated the process of importing and processing prototypes."
+			]
+		},
+		{
+			"company": "NBA",
+			"role": "Senior Engineer",
+			"dates": "April 2022 – October 2022",
+			"responsibilities": [
+				"Developed Core Data APIs for live in-game data.",
+				"Implemented a new GraphQL API service, improving performance by 80%."
+			]
+		},
+		{
+			"company": "Nike",
+			"role": "Senior Engineer",
+			"dates": "September 2021 – April 2022",
+			"responsibilities": [
+				"Created a Web application for organizational structure information.",
+				"Built a scalable application using Node.js, React, and GraphQL."
+			]
+		},
+		{
+			"company": "Nike",
+			"role": "Senior Engineer III",
+			"dates": "August 2019 – September 2021",
+			"responsibilities": [
+				"Built a Machine Learning-driven chat application on Twilio.",
+				"Constructed responsive UI components from Figma designs."
+			]
+		},
+		{
+			"company": "Nike",
+			"role": "Lead Engineer",
+			"dates": "May 2016 – August 2019",
+			"responsibilities": [
+				"Led a team to redesign Nike customer support sites.",
+				"Migrated code bases to a Node.js project with CI/CD pipelines."
+			]
+		},
+		{
+			"company": "Oracle",
+			"role": "Demo Site Architect",
+			"dates": "April 2011 – May 2016",
+			"responsibilities": [
+				"Built customer service sites using HTML, CSS, JavaScript, and PHP."
+			]
+		}
+	],
+	"education": [
+		{
+			"degree": "Bachelor of Science in Computer Science",
+			"institution": "University of Technology",
+			"year": "2010"
+		}
+	],
+	"certifications": [
+		"Certified ScrumMaster (CSM)",
+		"ReactTraining.com React Workshop",
+		"Salesforce Developer Training",
+		"A+ certified"
+	]
+}

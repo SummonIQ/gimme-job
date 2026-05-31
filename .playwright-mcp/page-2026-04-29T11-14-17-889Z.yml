@@ -1,0 +1,331 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - link "Skip to main content" [ref=e4] [cursor=pointer]:
+      - /url: "#marketing-main"
+    - banner [ref=e5]:
+      - generic [ref=e7]:
+        - link [ref=e9] [cursor=pointer]:
+          - /url: /
+          - img [ref=e11]
+        - navigation [ref=e24]:
+          - link "Features" [ref=e25] [cursor=pointer]:
+            - /url: /features
+          - link "API" [ref=e26] [cursor=pointer]:
+            - /url: /rapidapi
+          - link "Pricing" [ref=e27] [cursor=pointer]:
+            - /url: /pricing
+          - link "Changelog" [ref=e28] [cursor=pointer]:
+            - /url: /changelog
+          - link "About" [ref=e29] [cursor=pointer]:
+            - /url: /about
+          - link "FAQ" [ref=e30] [cursor=pointer]:
+            - /url: /faq
+        - generic [ref=e31]:
+          - link "Sign In" [ref=e32] [cursor=pointer]:
+            - /url: /login
+          - link "Get Started" [ref=e34] [cursor=pointer]:
+            - /url: /signup
+    - main [ref=e35]:
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - heading "Job listings data for products that need fresh hiring signals" [level=1] [ref=e39]
+            - paragraph [ref=e40]: Gimme Job exposes normalized job listings through RapidAPI with search filters, backfill feeds, update feeds, expired job IDs, provider counts, facets, and freshness metadata.
+            - generic [ref=e41]:
+              - link "Open RapidAPI" [ref=e43] [cursor=pointer]:
+                - /url: https://rapidapi.com/
+                - text: Open RapidAPI
+                - img
+              - link "View endpoints" [ref=e45] [cursor=pointer]:
+                - /url: "#endpoints"
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - term [ref=e48]: Feeds
+                - definition [ref=e49]: "12"
+              - generic [ref=e50]:
+                - term [ref=e51]: Max page
+                - definition [ref=e52]: "500"
+              - generic [ref=e53]:
+                - term [ref=e54]: Auth
+                - definition [ref=e55]: RapidAPI
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - img "Gimme Job" [ref=e60]
+              - generic [ref=e61]: 200 OK
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: GET /v1/jobs
+                - generic [ref=e65]: "?q=engineer&remote=true&has_salary=true"
+              - generic [ref=e66]:
+                - generic [ref=e67]:
+                  - generic [ref=e68]: count
+                  - generic [ref=e69]: "100"
+                - generic [ref=e70]:
+                  - generic [ref=e71]: nextCursor
+                  - generic [ref=e72]: ready
+                - generic [ref=e73]:
+                  - generic [ref=e74]: queryMs
+                  - generic [ref=e75]: "18"
+                - generic [ref=e76]:
+                  - generic [ref=e77]: plan
+                  - generic [ref=e78]: pro
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - img [ref=e81]
+                  - text: Searchable filters
+                - generic [ref=e83]:
+                  - generic [ref=e84]: q / query
+                  - generic [ref=e85]: title_filter
+                  - generic [ref=e86]: organization_filter
+                  - generic [ref=e87]: location_filter
+                  - generic [ref=e88]: description_filter
+                  - generic [ref=e89]: remote
+                  - generic [ref=e90]: provider
+                  - generic [ref=e91]: job_type / employment_type
+        - generic [ref=e93]:
+          - generic [ref=e94]:
+            - img [ref=e95]
+            - heading "Search term plus real filters" [level=2] [ref=e96]
+            - paragraph [ref=e97]: Users can filter by q, title, company, location, description, remote status, provider, job type, salary presence, and date windows.
+          - generic [ref=e98]:
+            - img [ref=e99]
+            - heading "Backfill and sync routes" [level=2] [ref=e101]
+            - paragraph [ref=e102]: Separate endpoints cover 6-month backfills, 7-day posted jobs, 24-hour indexed jobs, hourly ingestion, modified jobs, and expired IDs.
+          - generic [ref=e103]:
+            - img [ref=e104]
+            - heading "RapidAPI gateway protection" [level=2] [ref=e107]
+            - paragraph [ref=e108]: The API expects RapidAPI proxy authorization on /v1 routes, so customers use RapidAPI keys while the origin stays protected.
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - heading "Endpoint groups built for buyers, not just demos" [level=2] [ref=e111]
+            - paragraph [ref=e112]: The RapidAPI product can support one-off search, production sync, search UI filters, and dataset monitoring from the same versioned API surface.
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - img [ref=e117]
+                - generic [ref=e120]:
+                  - heading "Search" [level=3] [ref=e121]
+                  - paragraph [ref=e122]: Browse active listings with text, company, location, remote, provider, salary, date, and job type filters.
+              - generic [ref=e123]:
+                - generic [ref=e124]: GET /v1/jobs
+                - generic [ref=e125]: "GET /v1/jobs/{id}"
+            - generic [ref=e126]:
+              - generic [ref=e127]:
+                - img [ref=e129]
+                - generic [ref=e133]:
+                  - heading "Ingestion" [level=3] [ref=e134]
+                  - paragraph [ref=e135]: Pull fresh slices for initial imports, recent pages, and frequent background jobs.
+              - generic [ref=e136]:
+                - generic [ref=e137]: GET /v1/jobs/backfill
+                - generic [ref=e138]: GET /v1/jobs/posted-7d
+                - generic [ref=e139]: GET /v1/jobs/indexed-24h
+                - generic [ref=e140]: GET /v1/jobs/hourly
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - img [ref=e144]
+                - generic [ref=e147]:
+                  - heading "Sync" [level=3] [ref=e148]
+                  - paragraph [ref=e149]: Keep your database current with modified active records and expired job IDs.
+              - generic [ref=e150]:
+                - generic [ref=e151]: GET /v1/jobs/updated
+                - generic [ref=e152]: GET /v1/jobs/modified-24h
+                - generic [ref=e153]: GET /v1/jobs/expired
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - img [ref=e157]
+                - generic [ref=e161]:
+                  - heading "Metadata" [level=3] [ref=e162]
+                  - paragraph [ref=e163]: Build dashboards and filter UIs from provider counts, facets, and freshness stats.
+              - generic [ref=e164]:
+                - generic [ref=e165]: GET /v1/jobs/providers
+                - generic [ref=e166]: GET /v1/jobs/facets
+                - generic [ref=e167]: GET /v1/jobs/stats
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - heading "Yes, users can filter by search term and other filters" [level=2] [ref=e171]
+            - paragraph [ref=e172]: That is one of the product differentiators. The API supports simple search for fast integrations and explicit filters for teams building serious job search, analytics, or enrichment workflows.
+          - generic [ref=e173]:
+            - generic [ref=e174]: q / query
+            - generic [ref=e175]: title_filter
+            - generic [ref=e176]: organization_filter
+            - generic [ref=e177]: location_filter
+            - generic [ref=e178]: description_filter
+            - generic [ref=e179]: remote
+            - generic [ref=e180]: provider
+            - generic [ref=e181]: job_type / employment_type
+            - generic [ref=e182]: has_salary
+            - generic [ref=e183]: posted_after
+            - generic [ref=e184]: indexed_after
+            - generic [ref=e185]: updated_after
+        - generic [ref=e186]:
+          - generic [ref=e187]:
+            - heading "Useful fields without exposing private app data" [level=2] [ref=e188]
+            - paragraph [ref=e189]: Responses include the fields customers need to build search experiences, import pipelines, and analytics. Private user data, saved jobs, resumes, notes, and application state are excluded.
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - img [ref=e192]
+                - text: title
+              - generic [ref=e194]:
+                - img [ref=e195]
+                - text: company
+              - generic [ref=e197]:
+                - img [ref=e198]
+                - text: location
+              - generic [ref=e200]:
+                - img [ref=e201]
+                - text: remote
+              - generic [ref=e203]:
+                - img [ref=e204]
+                - text: salary
+              - generic [ref=e206]:
+                - img [ref=e207]
+                - text: jobType
+              - generic [ref=e209]:
+                - img [ref=e210]
+                - text: requirements
+              - generic [ref=e212]:
+                - img [ref=e213]
+                - text: responsibilities
+              - generic [ref=e215]:
+                - img [ref=e216]
+                - text: benefits
+              - generic [ref=e218]:
+                - img [ref=e219]
+                - text: providerUrl
+              - generic [ref=e221]:
+                - img [ref=e222]
+                - text: postedAt
+              - generic [ref=e224]:
+                - img [ref=e225]
+                - text: updatedAt
+          - code [ref=e229]: "{ \"data\": [{ \"title\": \"Software Engineer\", \"company\": \"Example Co\", \"location\": \"Remote\", \"remote\": true, \"salary\": \"$120,000 - $160,000\", \"provider\": \"ATS_FEED\", \"providerUrl\": \"https://example.com/jobs/456\", \"postedAt\": \"2026-04-28T18:30:00.000Z\", \"updatedAt\": \"2026-04-29T05:10:00.000Z\" }], \"meta\": { \"limit\": 100, \"nextCursor\": \"eyJzb3J0Ijoi...\", \"queryMs\": 18 } }"
+        - generic [ref=e232]:
+          - generic [ref=e233]:
+            - heading "Plan-aware limits for predictable performance" [level=2] [ref=e234]
+            - paragraph [ref=e235]: RapidAPI handles subscription, quota, gateway auth, and billing. The API caps result size by plan so search and sync routes stay fast under load.
+            - generic [ref=e236]:
+              - generic [ref=e237]:
+                - img [ref=e238]
+                - paragraph [ref=e241]: Use /v1/jobs/backfill for the first import.
+              - generic [ref=e242]:
+                - img [ref=e243]
+                - paragraph [ref=e246]: Run /v1/jobs/updated on a schedule and upsert by id.
+              - generic [ref=e247]:
+                - img [ref=e248]
+                - paragraph [ref=e251]: Run /v1/jobs/expired to remove stale listings.
+              - generic [ref=e252]:
+                - img [ref=e253]
+                - paragraph [ref=e256]: Use /v1/jobs/facets and /v1/jobs/providers to power filters.
+          - generic [ref=e257]:
+            - generic [ref=e258]:
+              - img [ref=e259]
+              - text: Page size caps
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]:
+                  - generic [ref=e265]: Basic
+                  - generic [ref=e266]: 25 / request
+                - generic [ref=e267]: Light search and prototypes
+              - generic [ref=e268]:
+                - generic [ref=e269]:
+                  - generic [ref=e270]: Pro
+                  - generic [ref=e271]: 100 / request
+                - generic [ref=e272]: Production search pages
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Ultra
+                  - generic [ref=e276]: 250 / request
+                - generic [ref=e277]: Higher-volume sync jobs
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]: Mega
+                  - generic [ref=e281]: 500 / request
+                - generic [ref=e282]: Backfills and data products
+            - paragraph [ref=e283]: The RapidAPI dashboard can also enforce hourly request limits per plan.
+        - generic [ref=e285]:
+          - generic [ref=e286]:
+            - heading "Build on fresh job data without running the ingestion stack" [level=2] [ref=e287]
+            - paragraph [ref=e288]: Use RapidAPI for access control and billing, then plug the job listing feeds into search products, job boards, CRM enrichment, market maps, or AI workflows.
+          - generic [ref=e289]:
+            - link "Open RapidAPI" [ref=e291] [cursor=pointer]:
+              - /url: https://rapidapi.com/
+              - text: Open RapidAPI
+              - img
+            - link "Contact us" [ref=e293] [cursor=pointer]:
+              - /url: mailto:support@gimmejob.com?subject=Gimme%20Job%20Listings%20API
+    - contentinfo [ref=e294]:
+      - contentinfo [ref=e295]:
+        - generic [ref=e297]:
+          - generic [ref=e298]:
+            - generic [ref=e299]:
+              - link "Gimme Job" [ref=e300] [cursor=pointer]:
+                - /url: /
+                - img [ref=e302]
+                - generic [ref=e305]: Gimme Job
+              - paragraph [ref=e306]: AI-powered job search platform helping thousands land their dream jobs faster.
+              - generic [ref=e307]:
+                - link "Twitter" [ref=e308] [cursor=pointer]:
+                  - /url: https://twitter.com
+                  - img [ref=e309]
+                - link "LinkedIn" [ref=e311] [cursor=pointer]:
+                  - /url: https://linkedin.com
+                  - img [ref=e312]
+                - link "GitHub" [ref=e316] [cursor=pointer]:
+                  - /url: https://github.com
+                  - img [ref=e317]
+            - generic [ref=e320]:
+              - heading "Product" [level=3] [ref=e321]
+              - list [ref=e322]:
+                - listitem [ref=e323]:
+                  - link "Features" [ref=e324] [cursor=pointer]:
+                    - /url: /features
+                - listitem [ref=e325]:
+                  - link "Pricing" [ref=e326] [cursor=pointer]:
+                    - /url: /pricing
+                - listitem [ref=e327]:
+                  - link "Changelog" [ref=e328] [cursor=pointer]:
+                    - /url: /changelog
+                - listitem [ref=e329]:
+                  - link "FAQ" [ref=e330] [cursor=pointer]:
+                    - /url: /faq
+            - generic [ref=e331]:
+              - heading "Company" [level=3] [ref=e332]
+              - list [ref=e333]:
+                - listitem [ref=e334]:
+                  - link "About" [ref=e335] [cursor=pointer]:
+                    - /url: /about
+                - listitem [ref=e336]:
+                  - link "Blog" [ref=e337] [cursor=pointer]:
+                    - /url: /blog
+                - listitem [ref=e338]:
+                  - link "Careers" [ref=e339] [cursor=pointer]:
+                    - /url: /careers
+            - generic [ref=e340]:
+              - heading "Support" [level=3] [ref=e341]
+              - list [ref=e342]:
+                - listitem [ref=e343]:
+                  - link "Help Center" [ref=e344] [cursor=pointer]:
+                    - /url: /help
+                - listitem [ref=e345]:
+                  - link "Contact" [ref=e346] [cursor=pointer]:
+                    - /url: /contact
+                - listitem [ref=e347]:
+                  - link "Status" [ref=e348] [cursor=pointer]:
+                    - /url: /status
+          - generic [ref=e350]:
+            - paragraph [ref=e351]: © 2026 Gimme Job. All rights reserved.
+            - generic [ref=e352]:
+              - link "Privacy" [ref=e353] [cursor=pointer]:
+                - /url: /privacy
+              - link "Terms" [ref=e354] [cursor=pointer]:
+                - /url: /terms
+              - link "Cookies" [ref=e355] [cursor=pointer]:
+                - /url: /cookies
+  - generic [ref=e356]:
+    - generic:
+      - button "Tools":
+        - generic:
+          - generic: Tools
+    - generic [ref=e359]: xl
+  - region "Notifications alt+T"
+  - alert [ref=e360]

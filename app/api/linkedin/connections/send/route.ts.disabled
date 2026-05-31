@@ -1,0 +1,94 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { sendConnectionRequest } from "@/lib/linkedin/connection-automation";
+import { z } from "zod";
+
+const sendConnectionSchema = z.object({
+  targetProfileUrl: z.string().url("Invalid LinkedIn profile URL"),
+  templateId: z.string().optional(),
+  customMessage: z.string().optional(),
+  scheduleFor: z.string().optional().transform(date => date ? new Date(date) : undefined),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validation = sendConnectionSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Invalid request data", details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { targetProfileUrl, templateId, customMessage, scheduleFor } = validation.data;
+
+    // Extract profile ID from LinkedIn URL
+    const profileId = extractLinkedInProfileId(targetProfileUrl);
+    if (!profileId) {
+      return NextResponse.json(
+        { error: "Invalid LinkedIn profile URL format" },
+        { status: 400 }
+      );
+    }
+
+    // Send the connection request
+    const result = await sendConnectionRequest({
+      userId: user.id,
+      targetProfileId: profileId,
+      targetProfileUrl,
+      templateId,
+      customMessage,
+      scheduleFor,
+    });
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        connectionId: result.connectionId,
+        scheduled: result.scheduled,
+      });
+    } else {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 400 }
+      );
+    }
+  } catch (error) {
+    console.error("Error sending connection request:", error);
+    return NextResponse.json(
+      { error: "Failed to send connection request" },
+      { status: 500 }
+    );
+  }
+}
+
+function extractLinkedInProfileId(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    
+    // Handle different LinkedIn URL formats
+    const patterns = [
+      /\/in\/([^\/\?]+)/,          // https://linkedin.com/in/username
+      /\/profile\/view\?id=(.+)/,  // Old format
+      /\/pub\/([^\/\?]+)/,         // Public profile format
+    ];
+
+    for (const pattern of patterns) {
+      const match = urlObj.pathname.match(pattern);
+      if (match) {
+        return match[1];
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}

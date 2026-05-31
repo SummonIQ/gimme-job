@@ -1,0 +1,2518 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ApplicationSubmission {
+  confirmationState   ApplicationConfirmationState @default(PENDING)
+  createdAt           DateTime                  @default(now())
+  errorMessage        String?
+  // Typed desktop-runtime failure reason (P17.1). One of the values in
+  // DESKTOP_AGENT_SESSION_STATUSES — kept as String here rather than a
+  // Prisma enum so the desktop runtime + the web ingest endpoint stay
+  // the single source of truth and we don't need a migration on every
+  // new typed reason. NULL when the run produced a non-failure status
+  // (completed / paused_for_manual_review / blocked_by_submit_guard).
+  failureReason       String?
+  id                  String                    @id @default(cuid())
+  jobLeadId           String
+  metadata            Json?
+  resumeId            String?
+  status              ApplicationStatus         @default(PENDING)
+  submissionUrl       String?
+  submittedAt         DateTime?
+  updatedAt           DateTime                  @updatedAt
+  userId              String
+  userAgent           String?
+  verifiedAt          DateTime?
+  wasAutomated        Boolean                   @default(false)
+  daysSinceSubmission Int?
+  daysToFinalOutcome  Int?
+  daysToResponse      Int?
+  finalOutcomeAt      DateTime?
+  interviewCount      Int                       @default(0)
+  lastStatusChangeAt  DateTime?
+  responseReceivedAt  DateTime?
+  outcomeEvents       ApplicationOutcomeEvent[]
+  jobLead             JobLead                   @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  resume              Resume?                   @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guidedApplication   GuidedApplication?
+  applicationEmails   ApplicationEmail[]
+  followUpDraft       FollowUpDraft?
+}
+
+model PlanBoardTask {
+  id               String          @id @default(cuid())
+  taskId           String          @unique
+  title            String          @default("")
+  description      String?
+  phaseId          String          @default("P?")
+  phaseTitle       String          @default("Unassigned")
+  acceptance       String?
+  testsRequired    String?
+  dependsOn        String[]        @default([])
+  files            String[]        @default([])
+  labels           String[]        @default([])
+  sortOrder        Int             @default(0)
+  status           PlanBoardStatus @default(TODO)
+  agentHandle      String?
+  claimedAt        DateTime?
+  assignmentReason String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  events           PlanBoardEvent[]
+
+  @@index([status, updatedAt])
+  @@index([status, claimedAt])
+  @@index([phaseId, sortOrder])
+}
+
+model PlanBoardEvent {
+  id                  String              @id @default(cuid())
+  taskId              String
+  eventType           PlanBoardEventType
+  fromStatus          PlanBoardStatus?
+  toStatus            PlanBoardStatus?
+  agentHandle         String?
+  previousAgentHandle String?
+  nextAgentHandle     String?
+  assignmentReason    String?
+  message             String?
+  createdAt           DateTime            @default(now())
+  task                PlanBoardTask        @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+
+  @@index([taskId, createdAt])
+  @@index([eventType, createdAt])
+}
+
+model ApplicationOutcomeEvent {
+  id                      String                @id @default(cuid())
+  applicationSubmissionId String
+  eventType               String
+  previousStatus          ApplicationStatus?
+  newStatus               ApplicationStatus
+  metadata                Json?
+  notes                   String?
+  createdAt               DateTime              @default(now())
+  createdBy               String?
+  applicationSubmission   ApplicationSubmission @relation(fields: [applicationSubmissionId], references: [id], onDelete: Cascade)
+}
+
+model CoverLetter {
+  createdAt           DateTime            @default(now())
+  description         String?
+  id                  String              @id @default(cuid())
+  json                Json?
+  leadId              String?
+  markdown            String?
+  name                String
+  updatedAt           DateTime            @updatedAt
+  userId              String
+  lead                JobLead?            @relation(fields: [leadId], references: [id])
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guidedApplications  GuidedApplication[]
+  tailoredForLeads    JobLead[]           @relation("JobLeadTailoredCoverLetter")
+}
+
+model JobFitAnalysis {
+  additionalMetrics        Json
+  createdAt                DateTime             @default(now())
+  educationRelevanceScore  Int
+  experienceRelevanceScore Int
+  summary                  String
+  id                       String               @id @default(cuid())
+  jobLeadId                String?              @unique
+  jobListingId             String?
+  keywordMatch             Json
+  missingKeywords          String[]
+  overallMatchScore        Int
+  progress                 Int                  @default(0)
+  recommendations          String[]
+  resumeId                 String?
+  resumeRevisionId         String?
+  skillsAlignment          Json
+  status                   JobFitAnalysisStatus @default(QUEUED)
+  updatedAt                DateTime             @updatedAt
+  userId                   String?
+  jobLead                  JobLead?             @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  jobListing               JobListing?          @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+  resume                   Resume?              @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeRevision           ResumeRevision?      @relation(fields: [resumeRevisionId], references: [id])
+  user                     User?                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobLeadOptimization      JobLeadOptimization?
+  resumeOptimization       ResumeOptimization?
+}
+
+model JobLead {
+  createdAt                       DateTime                         @default(now())
+  id                              String                           @id @default(cuid())
+  jobListingId                    String                           @unique
+  jobSearchId                     String?
+  status                          JobLeadStatus                    @default(ADDED)
+  submissionTier                  SubmissionTier                   @default(TARGETED)
+  tailoredCoverLetterId           String?
+  tailoredResumeRevisionId        String?
+  title                           String
+  updatedAt                       DateTime                         @updatedAt
+  userId                          String
+  applicationSubmissions          ApplicationSubmission[]
+  automationScheduledApplications AutomationScheduledApplication[]
+  coverLetters                    CoverLetter[]
+  jobFitAnalysis                  JobFitAnalysis?
+  jobListing                      JobListing                       @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+  jobSearch                       JobSearch?                       @relation(fields: [jobSearchId], references: [id], onDelete: Cascade)
+  tailoredCoverLetter             CoverLetter?                     @relation("JobLeadTailoredCoverLetter", fields: [tailoredCoverLetterId], references: [id])
+  tailoredResumeRevision          ResumeRevision?                  @relation("JobLeadTailoredResume", fields: [tailoredResumeRevisionId], references: [id])
+  user                            User                             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  optimization                    JobLeadOptimization?
+  resumeOptimizations             ResumeOptimization[]
+  resumeRevisions                 ResumeRevision?
+  guidedApplications              GuidedApplication[]
+  applicationEmails               ApplicationEmail[]
+  interviewQuestions              InterviewQuestion[]
+  interviewSessions               InterviewSession[]
+
+  @@index([userId, status])
+  @@index([userId, createdAt])
+}
+
+model JobLeadOptimization {
+  createdAt        DateTime                  @default(now())
+  id               String                    @id @default(cuid())
+  jobFitAnalysisId String?                   @unique
+  jobLeadId        String                    @unique
+  progress         Int                       @default(0)
+  resumeRevisionId String?                   @unique
+  status           JobLeadOptimizationStatus @default(QUEUED)
+  updatedAt        DateTime                  @updatedAt
+  userId           String?
+  metadata         Json?                     // Pipeline context for durable state machine
+  jobFitAnalysis   JobFitAnalysis?           @relation(fields: [jobFitAnalysisId], references: [id])
+  jobLead          JobLead                   @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  resumeRevision   ResumeRevision?           @relation(fields: [resumeRevisionId], references: [id])
+  user             User?                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model JobListing {
+  applyOptions             Json?
+  benefits                 String[]
+  company                  String?
+  companyLogoUrl           String?
+  createdAt                DateTime         @default(now())
+  dentalCoverage           Boolean?
+  description              String?
+  detectedExtensions       Json?
+  extendedDetailsCollected Boolean?         @default(false)
+  extensions               String[]
+  healthInsurance          Boolean?
+  id                       String           @id @default(cuid())
+  jobProvider              JobProvider?     @map("jobBoard")
+  jobProviderUrl           String?          @map("jobBoardUrl")
+  jobId                    String           @unique
+  jobType                  JobType?
+  location                 String?
+  paidTimeOff              Boolean?
+  postedAt                 DateTime?
+  qualifications           String[]         @default([])
+  remote                   Boolean?
+  requirements             String[]         @default([])
+  responsibilities         String[]         @default([])
+  salary                   String?
+  saved                    Boolean          @default(false)
+  scheduleType             String?
+  source                   String?
+  status                   JobListingStatus @default(UNREVIEWED)
+  title                    String
+  updatedAt                DateTime         @updatedAt
+  userId                   String
+  workFromHome             Boolean?
+  jobFitAnalyses           JobFitAnalysis[]
+  lead                     JobLead?
+  jobSearchListings        JobSearchListing[]
+  user                     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, postedAt])
+  @@index([userId, createdAt])
+  @@index([userId, saved])
+  @@index([userId, status, postedAt])
+  @@index([source])
+}
+
+model JobSearch {
+  completedAt  DateTime?
+  createdAt    DateTime        @default(now())
+  endedAt      DateTime?
+  errorMessage String?
+  id           String          @id @default(cuid())
+  jobProvider     JobProvider?     @map("jobBoard")
+  jobProviderUrl  String?          @map("jobBoardUrl")
+  location     String?
+  nextToken    String?
+  pageDelay    Int?
+  progress     Int             @default(0)
+  remote       Boolean?
+  saved        Boolean         @default(false)
+  searchTerm   String
+  status       JobSearchStatus @default(QUEUED)
+  totalJobs    Int?
+  updatedAt    DateTime        @updatedAt
+  userId       String
+  metadata     Json?
+  jobLeads     JobLead[]
+  jobSearchListings JobSearchListing[]
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, saved])
+  @@index([userId, createdAt])
+  @@index([userId, status])
+}
+
+model JobSearchListing {
+  createdAt     DateTime   @default(now())
+  jobSearchId   String
+  jobListingId  String
+  jobSearch     JobSearch  @relation(fields: [jobSearchId], references: [id], onDelete: Cascade)
+  jobListing    JobListing @relation(fields: [jobListingId], references: [id], onDelete: Cascade)
+
+  @@id([jobSearchId, jobListingId])
+  @@index([jobListingId])
+}
+
+model LinkedInProfile {
+  createdAt         DateTime @default(now())
+  email             String?
+  firstName         String
+  headline          String?
+  id                String   @id @default(cuid())
+  importedAt        DateTime
+  lastName          String
+  linkedInId        String
+  locationCity      String?
+  locationCountry   String?
+  profileData       Json?
+  profilePictureUrl String?
+  publicProfileUrl  String?
+  updatedAt         DateTime @updatedAt
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, linkedInId])
+}
+
+model ResumeAnalysis {
+  achievements     Json?
+  createdAt        DateTime             @default(now())
+  formatting       Json?
+  grammar          Json?
+  id               String               @id @default(cuid())
+  keywords         Json?
+  likeability      Json?
+  progress         Int                  @default(0)
+  readability      Json?
+  recommendations  Json?
+  score            Int?
+  sections         Json?
+  resumeId         String?              @unique
+  resumeRevisionId String?              @unique
+  spelling         Json?
+  status           ResumeAnalysisStatus @default(QUEUED)
+  strengths        String[]
+  summary          String?
+  updatedAt        DateTime             @updatedAt
+  userId           String
+  weaknesses       String[]
+  resume           Resume?              @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeRevision   ResumeRevision?      @relation(fields: [resumeRevisionId], references: [id])
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  optimization     ResumeOptimization?
+}
+
+model ResumeOptimization {
+  analysisId                    String?                  @unique
+  changelog                     Json?
+  estimatedVisibilityBoost      String?
+  projectedShortlistProbability Float?
+  createdAt                     DateTime                 @default(now())
+  id                            String                   @id @default(cuid())
+  jobFitAnalysisId              String?                  @unique
+  jobLeadId                     String?
+  optimizationStrategy          String?
+  scoreImprovement              Float?
+  score                         Float?
+  status                        ResumeOptimizationStatus @default(QUEUED)
+  previousScore                 Int?
+  progress                      Int                      @default(0)
+  resumeId                      String?                  @unique
+  resumeRevisionId              String?                  @unique
+  scoreDelta                    Float?
+  scorePercentChange            Float?
+  significantImprovements       String[]
+  summary                       String?
+  updatedAt                     DateTime                 @updatedAt
+  userId                        String?
+  analysis                      ResumeAnalysis?          @relation(fields: [analysisId], references: [id])
+  jobFitAnalysis                JobFitAnalysis?          @relation(fields: [jobFitAnalysisId], references: [id])
+  jobLead                       JobLead?                 @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  resume                        Resume?                  @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeRevision                ResumeRevision?          @relation(fields: [resumeRevisionId], references: [id])
+  user                          User?                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Resume {
+  analysisId             String?                   @unique
+  id                     String                    @id @default(cuid())
+  createdAt              DateTime                  @default(now())
+  defaultRevisionId      String?                   @unique
+  description            String?
+  filename               String?
+  format                 ResumeFormat?
+  json                   Json?
+  markdown               String?
+  name                   String
+  updatedAt              DateTime                  @updatedAt
+  url                    String?
+  userId                 String
+  kind                   ResumeKind                @default(UPLOADED)
+  structuredData         Json?
+  applicationSubmissions ApplicationSubmission[]
+  jobFitAnalyses         JobFitAnalysis[]
+  user                   User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis               ResumeAnalysis?
+  optimization           ResumeOptimization?
+  performanceMetrics     ResumePerformanceMetric[]
+  revisions              ResumeRevision[]
+  guidedApplications     GuidedApplication[]
+}
+
+model Session {
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  id        String   @id @default(cuid())
+  ipAddress String?
+  token     String   @unique
+  updatedAt DateTime @updatedAt
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model ResumeRevision {
+  id                  String                    @id @default(cuid())
+  createdAt           DateTime                  @default(now())
+  description         String?
+  format              ResumeFormat?
+  formats             Json?
+  jobLeadId           String?                   @unique
+  json                Json?
+  markdown            String?
+  name                String
+  pdfDocumentUrl      String?
+  resumeAnalysisId    String?                   @unique
+  resumeId            String
+  updatedAt           DateTime                  @updatedAt
+  wordDocumentUrl     String?
+  userId              String
+  jobFitAnalyses      JobFitAnalysis[]
+  jobLeadOptimization JobLeadOptimization?
+  resumeAnalysis      ResumeAnalysis?
+  optimization        ResumeOptimization?
+  performanceMetrics  ResumePerformanceMetric[]
+  jobLead             JobLead?                  @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  resume              Resume                    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tailoredForLeads    JobLead[]                 @relation("JobLeadTailoredResume")
+}
+
+model InterviewQuestion {
+  id                String             @id @default(cuid())
+  type              String
+  question          String
+  description       String?
+  difficulty        String
+  jobLeadId         String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  userId            String
+  jobLead           JobLead?           @relation(fields: [jobLeadId], references: [id], onDelete: SetNull)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviewSessions InterviewSession[] @relation("InterviewSessionQuestions")
+  responses         InterviewResponse[]
+
+  @@index([userId, createdAt])
+  @@index([jobLeadId])
+}
+
+model InterviewResponse {
+  id                String             @id @default(cuid())
+  questionId        String
+  answer            String
+  feedback          String?
+  score             Float?
+  quality           String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  userId            String
+  question          InterviewQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interviewSessions InterviewSession[] @relation("InterviewSessionResponses")
+
+  @@index([userId, createdAt])
+  @@index([questionId])
+}
+
+model InterviewSession {
+  id            String              @id @default(cuid())
+  name          String?
+  description   String?
+  status        String              @default("IN_PROGRESS")
+  totalScore    Float?
+  averageScore  Float?
+  source        String?
+  sourceEmailId String?             @unique
+  metadata      Json?
+  jobLeadId     String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  userId        String
+  jobLead       JobLead?            @relation(fields: [jobLeadId], references: [id], onDelete: SetNull)
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions     InterviewQuestion[] @relation("InterviewSessionQuestions")
+  responses     InterviewResponse[] @relation("InterviewSessionResponses")
+
+  @@index([userId, createdAt])
+  @@index([jobLeadId])
+}
+
+model Subscription {
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  currentPeriodEnd     DateTime
+  currentPeriodStart   DateTime @default(now())
+  id                   String   @id @default(cuid())
+  plan                 String
+  priceId              String?
+  status               String
+  stripeCustomerId     String   @unique
+  stripeSubscriptionId String   @unique
+  updatedAt            DateTime @updatedAt
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+}
+
+model User {
+  createdAt                       DateTime                         @default(now())
+  defaultResumeId                 String?                          @unique
+  defaultRevisionId               String?                          @unique
+  email                           String                           @unique
+  emailVerified                   Boolean                          @default(false)
+  firstName                       String
+  id                              String                           @id @default(cuid())
+  image                           String?                          @default("/user.png")
+  lastName                        String
+  name                            String?
+  phone                           String?                          @unique
+  phoneVerified                   DateTime?
+  updatedAt                       DateTime                         @updatedAt
+  applicationSubmissions          ApplicationSubmission[]
+  automationAuditLogs             AutomationAuditLog[]
+  automationScheduledApplications AutomationScheduledApplication[]
+  automationSettings              AutomationSettings?
+  CodeMetric                      CodeMetric[]
+  coverLetters                    CoverLetter[]
+  DeploymentMetric                DeploymentMetric[]
+  DeveloperMetric                 DeveloperMetric[]
+  IncidentMetric                  IncidentMetric[]
+  jobFitAnalyses                  JobFitAnalysis[]
+  leads                           JobLead[]
+  jobLeadOptimizations            JobLeadOptimization[]
+  jobListings                     JobListing[]
+  jobSearches                     JobSearch[]
+  linkedInProfiles                LinkedInProfile[]
+  mobileAudits                    MobileResponsivenessAudit[]
+  notifications                   Notification[]
+  peopleProfiles                  PeopleProfile[]
+  assistTrainingSessions          AssistTrainingSession[]
+  applicationRuntimeSessions      ApplicationRuntimeSession[]
+  applicationRuntimeEvents        ApplicationRuntimeEvent[]
+  runtimeTrainingReviews          RuntimeTrainingReview[]
+  atsAnalysisJobs                 ATSAnalysisJob[]
+  rulePromotionCandidates         RulePromotionCandidate[]
+  ProductivityMetric              ProductivityMetric[]
+  resumes                         Resume[]
+  resumeAnalyses                  ResumeAnalysis[]
+  resumeOptimizations             ResumeOptimization[]
+  resumePerformanceMetrics        ResumePerformanceMetric[]
+  resumeRevisions                 ResumeRevision[]
+  subscription                    Subscription?
+  jobPreferences                  UserJobPreferences?
+  profile                         UserProfile?
+  verificationTokens              VerificationToken[]
+  accounts                        Account[]
+  sessions                        Session[]
+  guidedApplications              GuidedApplication[]
+  trackingEmailAlias              String?                          @unique
+  trackingEmailForwardingEnabled  Boolean                          @default(false)
+  trackingEmailSetupAt            DateTime?
+  // When true, desktop submissions upload the per-lead tailored resume.
+  // Default false — submissions use the user's stored default resume.
+  // Tailored revisions are still saved on the JobLead for history.
+  useOptimizedResumeOnSubmit      Boolean                          @default(false)
+  applicationEmails               ApplicationEmail[]
+  atsFieldObservations            ATSFieldObservation[]
+  knowledge                       UserKnowledge[]
+  confirmationInboxes             ConfirmationInbox[]
+  followUpDrafts                  FollowUpDraft[]
+  desktopTokens                   DesktopToken[]
+  desktopPairingCodes             DesktopPairingCode[]
+  desktopAuditLogs                DesktopAuditLog[]
+  localFormSnapshots              LocalFormSnapshot[]
+  formFieldFeedbacks              FormFieldFeedback[]
+  userFieldRules                  UserFieldRule[]
+  userCredentials                 UserCredential[]
+  interviewQuestions              InterviewQuestion[]
+  interviewResponses              InterviewResponse[]
+  interviewSessions               InterviewSession[]
+  runtimeTrustOverrides           RuntimeTrustOverride[]
+  scrapeSessions                  ScrapeSession[]
+
+  @@map("user")
+}
+
+model UserJobPreferences {
+  city            String?
+  companySize     CompanySize?
+  companyType     String?
+  createdAt       DateTime         @default(now())
+  experienceLevel ExperienceLevel?
+  id              String           @id @default(cuid())
+  jobTitles       String[]
+  preferRemote    Boolean?
+  remoteOnly      Boolean?
+  state           String?
+  updatedAt       DateTime         @updatedAt
+  userId          String           @unique
+  zipCode         String?
+  timezone        String?          @default("America/New_York")
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserProfile {
+  city                         String?
+  createdAt                    DateTime @default(now())
+  disabilityStatus             String?
+  earliestStartDate            String?
+  educationDegree              String?
+  educationEndMonth            Int?
+  educationEndYear             Int?
+  educationInstitution         String?
+  educationInstitutionLocation String?
+  educationStartMonth          Int?
+  educationStartYear           Int?
+  emailAddress                 String?
+  firstName                    String?
+  gender                       String?
+  githubUrl                    String?
+  id                           String   @id @default(cuid())
+  lastName                     String?
+  linkedinUrl                  String?
+  personalWebsiteUrl           String?
+  phoneNumber                  String?
+  preferredName                String?
+  pronouns                     String?
+  race                         String?
+  requiresSponsorship          Boolean?
+  salaryExpectation            String?
+  state                        String?
+  streetAddress                String?
+  transgenderIdentity          String?
+  updatedAt                    DateTime @updatedAt
+  userId                       String?  @unique
+  veteranStatus                String?
+  websiteUrl                   String?
+  workAuthorization            String?
+  yearsOfExperience            String?
+  zipCode                      String?
+  user                         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  expires    DateTime?
+  identifier String
+  token      String    @unique
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+
+  @@unique([identifier, token])
+}
+
+model Account {
+  accessToken           String?
+  accessTokenExpiresAt  DateTime?
+  accountId             String
+  createdAt             DateTime  @default(now())
+  id                    String    @id
+  idToken               String?
+  password              String?
+  providerId            String
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  updatedAt             DateTime  @updatedAt
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model MobileResponsivenessAudit {
+  id                   String   @id @default(cuid())
+  userId               String
+  createdAt            DateTime @default(now())
+  score                Int
+  highSeverityIssues   Int
+  mediumSeverityIssues Int
+  lowSeverityIssues    Int
+  totalIssues          Int
+  auditData            Json?
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Notification {
+  id           String               @id @default(cuid())
+  userId       String
+  title        String
+  message      String
+  type         NotificationCategory     @default(SYSTEM)
+  eventType    String?
+  status       NotificationStatus       @default(PENDING)
+  channels     NotificationChannel[]
+  actionUrl    String?
+  actionLabel  String?
+  isRead       Boolean              @default(false)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  expiresAt    DateTime?
+  metadata     Json?
+  priority     NotificationPriority @default(MEDIUM)
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries   NotificationDelivery[]
+
+  @@index([userId])
+}
+
+model NotificationDelivery {
+  id             String             @id @default(cuid())
+  notificationId String
+  channel        NotificationChannel
+  provider       String
+  status         NotificationStatus @default(UNREAD)
+  payload        Json?
+  sentAt         DateTime?
+  deliveredAt    DateTime?
+  failedAt       DateTime?
+  errorMessage   String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  notification   Notification       @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([notificationId])
+}
+
+model NotificationPreference {
+  id        String              @id @default(cuid())
+  userId    String
+  eventType String
+  channel   NotificationChannel
+  enabled   Boolean             @default(true)
+  digest    NotificationDigest  @default(NONE)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@unique([userId, eventType, channel])
+  @@index([userId])
+}
+
+model PeopleProfile {
+  id                  String   @id @default(cuid())
+  userId              String
+  name                String
+  company             String
+  title               String?
+  linkedinUrl         String?
+  summary             String?
+  experience          String[]
+  education           String[]
+  skills              String[]
+  articles            String[]
+  socialProfiles      Json?
+  personalityData     Json?
+  interviewStrategy   Json?
+  researchSources     String[]
+  notes               String?
+  tags                String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  researchedAt        DateTime?
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, createdAt])
+}
+
+model ATSAutomationPosture {
+  id         String                    @id @default(cuid())
+  family     String                    @unique
+  posture    ATSAutomationPostureLevel
+  tosUrl     String
+  reviewedAt DateTime
+  notes      String?
+  createdAt  DateTime                  @default(now())
+  updatedAt  DateTime                  @updatedAt
+}
+
+/// Manual trust overrides keyed to a runtime-trust scope tuple. Only
+/// demotions are stored here — promotions must flow through the P8.1
+/// ladder's signal evidence. Active rows cap the scope's level at
+/// `demotedTo`; an expiredAt past `now` is ignored.
+model RuntimeTrustOverride {
+  id                    String    @id @default(cuid())
+  userId                String
+  atsFamily             String
+  hostname              String
+  node                  String?
+  transition            String?
+  actionType            String
+  demotedTo             String    // TrustLevel value
+  reason                String
+  createdAt             DateTime  @default(now())
+  expiresAt             DateTime?
+  clearedAt             DateTime?
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, atsFamily, hostname])
+  @@index([clearedAt, expiresAt])
+}
+
+model ATSSystem {
+  id                    String   @id @default(cuid())
+  name                  String   // e.g., "Greenhouse", "Lever", "Workday"
+  vendor                String?  // Vendor name if different from product name
+  detectedDomain        String?  // Domain pattern like "greenhouse.io"
+  domainPatterns        String[] // Multiple domain patterns
+  
+  // Network analysis
+  apiEndpoints          Json?    // Detected API endpoints used by the ATS
+  networkPatterns       Json?    // Network request patterns (headers, params, etc.)
+  xhrCalls              Json?    // XHR/Fetch calls made during application
+  cookieRequirements    Json?    // Required cookies and sessions
+  csrfTokenPatterns     Json?    // CSRF token locations and patterns
+  
+  // Form and field analysis
+  commonStructures      Json     // Common HTML structures, input IDs, class names
+  formPatterns          Json     // Form submission patterns
+  fieldMappings         Json     // Field name -> HTML selector mappings
+  requiredFields        String[] // Fields that are always required
+  optionalFields        String[] // Fields that are sometimes present
+  hiddenFields          Json?    // Hidden fields and their typical values
+  
+  // File upload handling
+  resumeUploadMethod    String?  // How resume uploads work
+  resumeFieldSelectors  String[] // Selectors for resume upload fields
+  supportedFileTypes    String[] // Accepted file types
+  maxFileSize           Int?     // Max file size in bytes
+
+  // Resume autofill behavior
+  resumeUploadGatesAutofill       Boolean  @default(false) // Resume must be uploaded before batch autofill works
+  resumeAutofillContainerSelector String?  // CSS selector for the resume autofill UI container
+  resumeUploadApiPath             String?  // API path to wait for upload completion confirmation
+  
+  // Multi-step detection
+  isMultiStep           Boolean  @default(false)
+  stepCount             Int?     // Number of steps if multi-step
+  stepPatterns          Json?    // How to detect/navigate steps
+  
+  // Identification
+  uniqueIdentifiers     Json     // Unique ways to identify this ATS
+  metaTags              Json?    // Meta tags that identify this ATS
+  scriptUrls            String[] // JavaScript URLs that indicate this ATS
+  styleUrls             String[] // CSS URLs that indicate this ATS
+  
+  // Behavior and quirks
+  nuances               String[] // Special behaviors, quirks, notes
+  javascriptDependency  String?  // JS requirements (React, Angular, etc.)
+  waitTimeNeeded        Int?     // Milliseconds to wait for page load
+  requiresInteraction   Boolean  @default(false) // Needs clicks before form appears
+  
+  // AI-generated insights
+  aiVisualAnalysis      String?  // GPT-4 Vision analysis of screenshots
+  aiUxPatterns          String[] // UX patterns identified by AI
+  aiKeyObservations     String[] // Key observations from AI
+  aiRecommendedApproach String?  // AI's recommended automation approach
+  
+  // Success metrics
+  difficulty            String?  // "Easy", "Medium", "Hard"
+  successRate           Float?   // Success rate of automated submissions
+  avgCompletionTime     Int?     // Average time to complete application (seconds)
+  
+  // Examples and samples
+  sampleUrls            String[] // Sample job URLs using this ATS
+  screenshotUrls        String[] // Screenshots of the application flow
+  
+  // Analysis metadata
+  lastAnalyzed          DateTime @default(now())
+  totalAnalyzed         Int      @default(0)
+  lastSuccessfulSubmit  DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  fieldObservations     ATSFieldObservation[]
+  runtimeSessions       ApplicationRuntimeSession[]
+  rules                 ATSRule[]
+  rulePromotionCandidates RulePromotionCandidate[]
+  flowDefinitions       ApplicationFlowDefinition[]
+  flowNodes             ApplicationFlowNode[]
+  submissionConfirmationPhrases SubmissionConfirmationPhrase[]
+  networkRecipes        NetworkSubmissionRecipe[]
+
+  @@index([name])
+  @@index([detectedDomain])
+  @@index([vendor])
+}
+
+model ApplicationFlowDefinition {
+  id                   String   @id @default(cuid())
+  hostname             String
+  atsSystemId          String?
+  version              Int      @default(1)
+  status               String   @default("ACTIVE")
+  confidence           Float    @default(0)
+  compiledFromRuleCount Int     @default(0)
+  lastCompiledAt       DateTime @default(now())
+  metadata             Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  atsSystem            ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+  steps                ApplicationFlowStepDefinition[]
+
+  @@unique([hostname, version])
+  @@index([hostname])
+  @@index([atsSystemId])
+}
+
+model ApplicationFlowStepDefinition {
+  id                String   @id @default(cuid())
+  flowDefinitionId  String
+  stepIndex         Int
+  stepLabel         String?
+  primarySelector   String?
+  enabledRuleCount  Int      @default(0)
+  averageConfidence Float    @default(0)
+  labels            String[]
+  selectors         String[]
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  flowDefinition    ApplicationFlowDefinition @relation(fields: [flowDefinitionId], references: [id], onDelete: Cascade)
+
+  @@unique([flowDefinitionId, stepIndex])
+  @@index([stepIndex])
+}
+
+/// A single page/state in a multi-step application flow. Unlike
+/// `ApplicationFlowStepDefinition` (which is a compiled step inside a
+/// named flow), a `ApplicationFlowNode` represents an OBSERVED distinct
+/// page reached during training or real runs. Nodes are identified by a
+/// structural fingerprint (tag/class/aria signature of the visible
+/// fields + action surfaces) so the same conceptual page matches across
+/// job IDs, user sessions, and minor markup variations.
+///
+/// This model is the foundation for the fully-automated submission
+/// state machine: the runtime can then answer "where am I in this ATS
+/// flow?" by fingerprinting the current page and looking up the node.
+model ApplicationFlowNode {
+  id                  String   @id @default(cuid())
+  atsSystemId         String?
+  hostname            String
+  /// SHA-256 of the sorted, normalized list of visible field signatures.
+  /// Two visits to the same conceptual page produce the same fingerprint.
+  pageFingerprint     String
+  /// Human-facing label we show in the UI (e.g. "Personal Info",
+  /// "Resume Upload", "EEO Questions", "Review & Submit"). Derived from
+  /// heading text / section titles / vision classification.
+  nodeLabel           String?
+  /// Canonical list of required field signatures on this page. Auto-submit
+  /// asserts each one is filled before firing the transition.
+  requiredFields      Json     @default("[]")
+  /// Optional fields observed on the page (for context, not gating).
+  optionalFields      Json     @default("[]")
+  /// Post-condition checks that confirm we've advanced OFF this page.
+  /// Structured as a list of { kind: 'url-contains' | 'text-absent' | 'element-absent' | 'url-changed', value: string }.
+  exitConditions      Json     @default("[]")
+  /// How many distinct successful runs have observed this exact node.
+  observationCount    Int      @default(1)
+  /// How many times auto-submit has landed here in a run (completed + failed).
+  visitCount          Int      @default(0)
+  /// How many times we've successfully transitioned off this node.
+  successfulExitCount Int      @default(0)
+  /// Rolling confidence 0-1 derived from observation/exit counts.
+  confidence          Float    @default(0.2)
+  /// Free-form notes captured from vision or the training annotator.
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  atsSystem           ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+  outgoingTransitions ApplicationFlowTransition[] @relation("FlowNodeOutgoing")
+  incomingTransitions ApplicationFlowTransition[] @relation("FlowNodeIncoming")
+
+  @@unique([hostname, pageFingerprint])
+  @@index([hostname])
+  @@index([atsSystemId])
+  @@index([pageFingerprint])
+}
+
+/// A directed edge between two `ApplicationFlowNode`s. Represents "click
+/// this selector on node A and you'll land on node B." Multiple training
+/// observations of the same transition increment `observationCount`;
+/// confidence grows with repeated successful traversals.
+model ApplicationFlowTransition {
+  id               String   @id @default(cuid())
+  fromNodeId       String
+  toNodeId         String
+  /// The selector (usually a button) that triggers the transition.
+  triggerSelector  String
+  /// Human label for the trigger (e.g. "Continue", "Next", "Submit Application").
+  triggerLabel     String?
+  /// The action type on the trigger — "click", "submit", "keypress", etc.
+  actionType       String   @default("click")
+  observationCount Int      @default(1)
+  successCount     Int      @default(0)
+  failureCount     Int      @default(0)
+  confidence       Float    @default(0.2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  fromNode         ApplicationFlowNode @relation("FlowNodeOutgoing", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNode           ApplicationFlowNode @relation("FlowNodeIncoming", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  @@unique([fromNodeId, triggerSelector, toNodeId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+model ATSFieldObservation {
+  id           String     @id @default(cuid())
+  userId       String
+  hostname     String
+  pathname     String?
+  atsSystemId  String?
+  source       ApplicationRuntimeSource @default(LEGACY)
+
+  // Element metadata
+  selector        String   // Best reproducible CSS selector for the element
+  stableSelector  String?  // Preferred selector using label/aria/role (no random IDs)
+  tagName         String
+  inputType       String?
+  fieldName       String?
+  fieldId         String?
+  fieldLabel      String?
+  ariaLabel       String?
+  placeholder     String?
+  autocomplete    String?
+  role            String?  // ARIA role attribute
+
+  // Step sequence tracking
+  stepIndex    Int      @default(0) // Order within a single application session
+  sessionId    String?  // Groups observations from one application session
+
+  // Field constraints & metadata (for future AI context)
+  fieldDisplayName String?  // Human-friendly name (e.g., "Phone Number", "ZIP Code")
+  maxLength        Int?     // maxlength attribute
+  minLength        Int?     // minlength attribute
+  pattern          String?  // pattern attribute (regex)
+  inputMode        String?  // inputmode attribute (numeric, tel, email, etc.)
+  fieldConstraints Json?    // Additional constraints: { autoFormat, numbersOnly, allowedChars, etc. }
+
+  // Action context
+  action       String   // "continue" or "skip"
+  actionType   String   // "fill", "click", "upload", "activate"
+  aiReason     String?
+  valueFilled  String?  // PII-redacted
+  success      Boolean  @default(true)
+  // Did the DOM/URL actually change in the expected way after this action?
+  // Separates "click landed" from "click accomplished what it was supposed to".
+  postConditionMet Boolean?
+  // True when this field looks like a honeypot (hidden/off-screen/tabindex=-1)
+  // and was deliberately skipped during training.
+  isHoneypot   Boolean @default(false)
+
+  // Dedup tracking
+  observationCount Int  @default(1) // Incremented on duplicates instead of creating new rows
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  // Semantic embedding of fieldLabel for cross-hostname rule matching.
+  embedding    Unsupported("vector(768)")?
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atsSystem    ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+
+  @@unique([hostname, stableSelector, action, actionType], name: "unique_observation")
+  @@index([hostname])
+  @@index([hostname, tagName])
+  @@index([hostname, stepIndex])
+  @@index([userId])
+  @@index([atsSystemId])
+  @@index([sessionId])
+}
+
+model ATSRule {
+  id             String     @id @default(cuid())
+  hostname       String
+  atsSystemId    String?
+
+  // What to do
+  action         String     // "continue" or "skip"
+  actionType     String     // "fill", "click", "upload", "activate"
+
+  // Element targeting
+  stableSelector String     // Reproducible CSS selector
+  tagName        String
+  fieldName      String?
+  fieldLabel     String?
+  ariaLabel      String?
+  role           String?
+
+  // Step sequence
+  stepIndex      Int        @default(0) // Position in the application flow
+  reason         String?    // Why this rule exists
+
+  // Promotion tracking
+  observationCount     Int      @default(0) // How many observations led to this rule
+  confidence           Float    @default(1.0) // 0-1 confidence score
+  enabled              Boolean  @default(true)
+  consecutiveFailures  Int      @default(0) // Auto-disable after threshold
+  source               ApplicationRuntimeSource @default(LEGACY)
+
+  // Provenance — which training sessions contributed observations that
+  // promoted this rule. Lets us surgically roll back rules from a bad
+  // training run without touching unrelated rules.
+  sourceTrainingSessionIds String[] @default([])
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  // Semantic embedding of fieldLabel for cross-hostname rule lookup.
+  embedding      Unsupported("vector(768)")?
+  atsSystem      ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+  trainingReviews RuntimeTrainingReview[]
+
+  @@unique([hostname, stableSelector, action], name: "unique_rule")
+  @@index([hostname])
+  @@index([hostname, stepIndex])
+  @@index([atsSystemId])
+  @@index([source])
+}
+
+model ATSAnalysisJob {
+  id                String   @id @default(cuid())
+  userId            String
+  status            String   // "pending", "running", "completed", "failed"
+  searchQueries     String[] // Job titles/locations used for search
+  totalUrls         Int      @default(0)
+  processedUrls     Int      @default(0)
+  foundSystems      Int      @default(0)
+  
+  // SerpAPI pagination state
+  serpApiOffset     Int      @default(0)
+  serpApiPage       Int      @default(0)
+  serpApiNextToken  String?  // Token for next page if provided by API
+  processedJobIds   String[] // Job IDs already processed to avoid duplicates
+  
+  startedAt         DateTime @default(now())
+  completedAt       DateTime?
+  error             String?
+  progress          Float    @default(0)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+}
+
+model AssistTrainingSession {
+  id              String   @id @default(cuid())
+  userId          String
+  status          String   @default("pending") // "pending", "running", "completed", "failed"
+  targetUrl       String
+  hostname        String
+  jobLeadId       String?  // Optional link to a specific job lead
+
+  // Progress
+  totalSteps      Int      @default(0)
+  completedSteps  Int      @default(0)
+  progress        Float    @default(0)
+
+  // Results
+  stepLogs        Json[]   @default([]) // Array of { stepIndex, screenshot?, fieldsDetected, actionTaken, confidence }
+  observationsCreated Int  @default(0)
+  rulesPromoted   Int      @default(0)
+
+  // Metadata
+  atsSystemName   String?
+  atsSystemId     String?
+  trainingType    String?
+  error           String?
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([hostname])
+}
+
+model ApplicationRuntimeSession {
+  id                    String   @id @default(cuid())
+  guidedApplicationId   String
+  userId                String
+  atsSystemId           String?
+  executionEnvironment  ApplicationRuntimeExecutionEnvironment @default(WEB_RECONSTRUCTION)
+  mode                  String   @default("SUGGEST_ONLY")
+  status                String   @default("PENDING")
+  webviewInstanceId     String?
+  currentUrl            String?
+  currentStepIndex      Int      @default(0)
+  currentStepLabel      String?
+  domFingerprint        String?
+  pageFingerprintVersion Int     @default(1)
+  lastActionAt          DateTime?
+  lastUserInterventionAt DateTime?
+  startedAt             DateTime @default(now())
+  completedAt           DateTime?
+  pausedAt              DateTime?
+  runtimeMetadata       Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  atsSystem             ATSSystem?         @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+  guidedApplication     GuidedApplication  @relation(fields: [guidedApplicationId], references: [id], onDelete: Cascade)
+  user                  User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events                ApplicationRuntimeEvent[]
+  replayArtifacts       ReplayArtifact[]
+  trainingReviews       RuntimeTrainingReview[]
+
+  @@index([guidedApplicationId])
+  @@index([userId, status])
+  @@index([status, updatedAt])
+  @@index([atsSystemId])
+}
+
+model ReplayArtifact {
+  id                   String                    @id @default(cuid())
+  sessionId            String
+  domSnapshots         Bytes?
+  domSnapshotsMimeType String?                   @default("application/gzip")
+  screenshotUrls       String[]
+  eventBundle          Json
+  sizeBytes            Int?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  session              ApplicationRuntimeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+model ApplicationRuntimeEvent {
+  id            String   @id @default(cuid())
+  sessionId     String
+  userId        String
+  eventType     String
+  source        ApplicationRuntimeSource @default(LEGACY)
+  url           String?
+  stepIndex     Int?
+  selector      String?
+  fieldName     String?
+  fieldLabel    String?
+  actionType    String?
+  valueRedacted String?
+  success       Boolean?
+  errorCode     String?
+  errorMessage  String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  session       ApplicationRuntimeSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+}
+
+model AutomationSettings {
+  id                           String    @id @default(cuid())
+  userId                       String    @unique
+  requireUserApproval          Boolean   @default(true)
+  preventDuplicateApplications Boolean   @default(true)
+  enableCompanyBlacklist       Boolean   @default(false)
+  companyBlacklist             String[]  @default([])
+  enableKeywordBlacklist       Boolean   @default(false)
+  keywordBlacklist             String[]  @default([])
+  enableSalaryThreshold        Boolean   @default(false)
+  minSalaryThreshold           Int       @default(50000)
+  maxApplicationsPerCompany    Int       @default(3)
+  pauseOnConsecutiveFailures   Boolean   @default(true)
+  consecutiveFailureThreshold  Int       @default(3)
+  applicationsPerHour          Int       @default(10)
+  applicationsPerDay           Int       @default(50)
+  minIntervalMinutes           Int       @default(5)
+  respectProviderLimits        Boolean   @default(true) @map("respectJobBoardLimits")
+  enableSmartScheduling        Boolean   @default(true)
+  scheduleWeekdaysOnly         Boolean   @default(true)
+  scheduleBusinessHoursOnly    Boolean   @default(true)
+  preferredStartHour           Int       @default(9)
+  preferredEndHour             Int       @default(17)
+  userTimezone                 String    @default("America/New_York")
+  prioritizeNewListings        Boolean   @default(true)
+  isEnabled                    Boolean   @default(false)
+  isPaused                     Boolean   @default(false)
+  pausedAt                     DateTime?
+  pauseReason                  String?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  user                         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AutomationAuditLog {
+  id                      String   @id @default(cuid())
+  userId                  String
+  action                  String
+  actionType              String
+  metadata                Json?
+  jobLeadId               String?
+  applicationSubmissionId String?
+  createdAt               DateTime @default(now())
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action])
+}
+
+model AutomationScheduledApplication {
+  id            String    @id @default(cuid())
+  userId        String
+  jobLeadId     String
+  scheduledFor  DateTime
+  priority      Int       @default(0)
+  attemptCount  Int       @default(0)
+  maxAttempts   Int       @default(3)
+  status        String    @default("scheduled")
+  lastAttemptAt DateTime?
+  completedAt   DateTime?
+  errorMessage  String?
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  jobLead       JobLead   @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, scheduledFor])
+  @@index([scheduledFor])
+  @@index([status])
+}
+
+model ResumePerformanceMetric {
+  id                      String          @id @default(cuid())
+  userId                  String
+  resumeId                String?
+  resumeRevisionId        String?
+  totalApplications       Int             @default(0)
+  totalResponses          Int             @default(0)
+  totalInterviews         Int             @default(0)
+  totalOffers             Int             @default(0)
+  responseRate            Float           @default(0.0)
+  interviewRate           Float           @default(0.0)
+  offerRate               Float           @default(0.0)
+  atsScore                Int?
+  atsScoreHistory         Json?
+  optimizationScore       Int?
+  optimizationHistory     Json?
+  avgResponseTime         Float?
+  avgInterviewTime        Float?
+  avgOfferTime            Float?
+  keywordEffectiveness    Json?
+  sectionEffectiveness    Json?
+  lengthOptimal           Boolean?
+  industryBenchmark       Json?
+  personalBest            Boolean         @default(false)
+  improvementFromPrevious Float?
+  calculatedAt            DateTime        @default(now())
+  dataRange               Json?
+  sampleSize              Int             @default(0)
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  resume                  Resume?         @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeRevision          ResumeRevision? @relation(fields: [resumeRevisionId], references: [id], onDelete: Cascade)
+  user                    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, calculatedAt])
+  @@index([resumeId])
+  @@index([resumeRevisionId])
+  @@index([personalBest])
+}
+
+/// Learned phrases that indicate an application was SUCCESSFULLY submitted
+/// (e.g. "Thanks for applying", "We received your application"). Captured
+/// whenever a training run completes a full submission so auto-submit can
+/// reliably detect the positive terminal state. Grows per-hostname and
+/// per-ATS over time, separate from closed-posting detection.
+model SubmissionConfirmationPhrase {
+  id                String   @id @default(cuid())
+  hostname          String
+  atsSystemId       String?
+  normalizedPhrase  String
+  originalPhrase    String
+  exampleUrl        String?
+  observationCount  Int      @default(1)
+  firstObservedAt   DateTime @default(now())
+  lastObservedAt    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  atsSystem         ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+
+  @@unique([hostname, normalizedPhrase])
+  @@index([hostname])
+  @@index([atsSystemId])
+  @@index([lastObservedAt])
+}
+
+/// Learned phrases that indicate a job posting is expired, filled, or
+/// otherwise no longer accepting applications. Captured whenever the
+/// closed-posting detector (or an equivalent AI signal) fires on a page,
+/// so we can grow a per-hostname corpus and identify unavailable jobs
+/// faster over time. This is intentionally separate from the AI-assist
+/// rule-learning tables — it is not used to drive automation decisions.
+model ClosedPostingPhrase {
+  id                String   @id @default(cuid())
+  hostname          String
+  normalizedPhrase  String
+  originalPhrase    String
+  detectorReason    String?
+  exampleUrl        String?
+  observationCount  Int      @default(1)
+  firstObservedAt   DateTime @default(now())
+  lastObservedAt    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([hostname, normalizedPhrase])
+  @@index([hostname])
+  @@index([lastObservedAt])
+}
+
+model RulePromotionCandidate {
+  id                 String    @id @default(cuid())
+  userId             String
+  atsSystemId        String?
+  hostname           String
+  stableSelector     String
+  action             String
+  actionType         String
+  fieldName          String?
+  fieldLabel         String?
+  role               String?
+  tagName            String?
+  candidateFingerprint String
+  observationCount   Int       @default(1)
+  successCount       Int       @default(0)
+  failureCount       Int       @default(0)
+  userOverrideCount  Int       @default(0)
+  confidence         Float     @default(0.2)
+  promotionStatus    String    @default("OBSERVATION")
+  lastObservedAt     DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  atsSystem          ATSSystem? @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+  user               User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trainingReviews    RuntimeTrainingReview[]
+
+  @@unique([hostname, candidateFingerprint])
+  @@index([userId, promotionStatus])
+  @@index([hostname, promotionStatus])
+  @@index([atsSystemId])
+}
+
+model RuntimeTrainingReview {
+  id            String                        @id @default(cuid())
+  sessionId     String
+  candidateId   String?
+  ruleId        String?
+  userId        String
+  decision      RuntimeTrainingReviewDecision
+  reviewerNote  String?
+  metadata      Json?
+  createdAt     DateTime                      @default(now())
+  updatedAt     DateTime                      @updatedAt
+  candidate     RulePromotionCandidate?       @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  rule          ATSRule?                      @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  session       ApplicationRuntimeSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user          User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@index([candidateId])
+  @@index([ruleId])
+  @@index([userId, createdAt])
+}
+
+model CodeMetric {
+  id                String           @id
+  userId            String
+  teamId            String?
+  pullRequestId     String           @unique
+  title             String
+  status            CodeReviewStatus
+  createdAt         DateTime
+  mergedAt          DateTime?
+  closedAt          DateTime?
+  reviewTimeHours   Float?
+  timeToMergeHours  Float?
+  numberOfReviewers Int              @default(0)
+  numberOfComments  Int              @default(0)
+  numberOfApprovals Int              @default(0)
+  numberOfChanges   Int              @default(0)
+  testCoverage      Float?
+  complexityScore   Float?
+  duplicateLines    Int?
+  codeSmells        Int?
+  securityIssues    Int?
+  linesAdded        Int              @default(0)
+  linesRemoved      Int              @default(0)
+  filesChanged      Int              @default(0)
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([teamId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model DORABenchmark {
+  id                   String   @id
+  level                String
+  year                 Int
+  deployFrequency      String
+  deployFrequencyValue Float?
+  leadTime             String
+  leadTimeHours        Float?
+  mttr                 String
+  mttrMinutes          Float?
+  changeFailureRate    String
+  changeFailurePercent Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+
+  @@unique([level, year])
+}
+
+model DeploymentMetric {
+  id                  String           @id
+  userId              String
+  teamId              String?
+  deploymentId        String           @unique
+  environment         String
+  status              DeploymentStatus
+  deployedAt          DateTime
+  deploymentDuration  Int?
+  commitSha           String
+  commitMessage       String?
+  pullRequestId       String?
+  branchName          String?
+  linesAdded          Int?
+  linesRemoved        Int?
+  filesChanged        Int?
+  commitDate          DateTime
+  mergeDate           DateTime?
+  leadTimeHours       Float?
+  isRollback          Boolean          @default(false)
+  failureReason       String?
+  recoveryTimeMinutes Int?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  IncidentMetric      IncidentMetric[]
+
+  @@index([environment])
+  @@index([status])
+  @@index([teamId, deployedAt])
+  @@index([userId, deployedAt])
+}
+
+model DeveloperMetric {
+  id                   String   @id
+  userId               String
+  buildTimeSeconds     Float?
+  ciPipelineMinutes    Float?
+  testExecutionMinutes Float?
+  setupTimeHours       Float?
+  environmentIssues    Int      @default(0)
+  toolingSatisfaction  Float?
+  docsContributed      Int      @default(0)
+  docsConsumed         Int      @default(0)
+  documentationQuality Float?
+  onboardingDays       Float?
+  mentorshipHours      Float?
+  periodStart          DateTime
+  periodEnd            DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodStart])
+  @@index([userId, createdAt])
+}
+
+model IncidentMetric {
+  id                   String            @id
+  userId               String?
+  teamId               String?
+  incidentId           String            @unique
+  title                String
+  description          String?
+  severity             IncidentSeverity
+  detectedAt           DateTime
+  acknowledgedAt       DateTime?
+  resolvedAt           DateTime?
+  timeToDetectMinutes  Int?
+  timeToAckMinutes     Int?
+  timeToResolveMinutes Int?
+  usersAffected        Int?
+  servicesAffected     String[]
+  deploymentId         String?
+  rootCause            String?
+  postMortemUrl        String?
+  actionItems          Json?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime
+  DeploymentMetric     DeploymentMetric? @relation(fields: [deploymentId], references: [id])
+  user                 User?             @relation(fields: [userId], references: [id])
+
+  @@index([deploymentId])
+  @@index([severity])
+  @@index([teamId, detectedAt])
+}
+
+model ProductivityMetric {
+  id                   String   @id
+  userId               String
+  teamId               String?
+  periodStart          DateTime
+  periodEnd            DateTime
+  periodType           String
+  storyPointsCompleted Float?
+  tasksCompleted       Int      @default(0)
+  bugsFixed            Int      @default(0)
+  featuresDelivered    Int      @default(0)
+  cycleTimeHours       Float?
+  workInProgress       Float?
+  flowEfficiency       Float?
+  focusTimeHours       Float?
+  meetingTimeHours     Float?
+  contextSwitches      Int?
+  defectRate           Float?
+  reworkRate           Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, periodStart, periodType])
+  @@index([teamId, periodStart])
+}
+
+enum CompanySize {
+  ENTERPRISE
+  MID_SIZE
+  SMALL
+}
+
+enum ExperienceLevel {
+  ENTRY_LEVEL
+  MID_LEVEL
+  SENIOR_LEVEL
+}
+
+enum JobProvider {
+  CAREER_BUILDER
+  SERPAPI         @map("GOOGLE")
+  LINKEDIN
+  INDEED
+  GLASSDOOR
+  ZIPRECRUITER
+  ANGELLIST
+  WELLFOUND
+  MONSTER
+  DICE
+  FLEXJOBS
+  REMOTE_OK
+  WE_WORK_REMOTELY
+  COMPANY_DIRECT
+  THEIRSTACK
+  CORESIGNAL
+  FANTASTIC_JOBS
+  USAJOBS
+  JOOBLE
+  BUILT_IN
+  WELCOME_TO_THE_JUNGLE
+  THE_MUSE
+  WORK_AT_A_STARTUP
+  JOBICY
+  REMOTIVE
+  HIMALAYAS
+  ARBEITNOW
+  REMOTE_FIRST_JOBS
+  ADZUNA
+  DEV_IT_JOBS
+  WORKING_NOMADS
+  HACKER_NEWS
+  GREENHOUSE
+  LEVER
+  ASHBY
+  SMART_RECRUITERS
+  // ── Added: each had a fetcher in lib/admin/scrape-service.ts but no
+  //    enum value, so every listing was getting lumped into OTHER on the
+  //    analytics breakdown. Backfilled in the same migration that adds
+  //    these values (matches by jobId prefix).
+  NODESK
+  OPENJOBS
+  JOBSPRESSO
+  PYTHON_ORG
+  DJANGO_JOB_BOARD
+  REMOTE_JOBS_ORG
+  CLAW_JOBS
+  COMEET
+  JOB_DATA_API
+  FINDWORK
+  WORKDAY
+  BREEZY_HR
+  JAZZHR
+  JOBVITE
+  RECRUITEE
+  WORKABLE
+  TEAMTAILOR
+  BAMBOOHR
+  PERSONIO
+  PALLET
+  PINPOINT
+  CRUNCHBOARD
+  OTHER
+
+  @@map("JobBoard")
+}
+
+enum JobFitAnalysisStatus {
+  ANALYZING
+  COMPLETED
+  FAILED
+  QUEUED
+}
+
+enum ApplicationStatus {
+  PENDING
+  SUBMITTED
+  FAILED
+  REJECTED
+  UNDER_REVIEW
+  INTERVIEW_REQUESTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  OFFER_RECEIVED
+  OFFER_ACCEPTED
+  OFFER_REJECTED
+  WITHDRAWN
+  NOT_SELECTED
+}
+
+enum ApplicationConfirmationState {
+  PENDING
+  ATS_CONFIRMED
+  EMAIL_CONFIRMED
+  DASHBOARD_CONFIRMED
+  PRESUMED_FAILED
+  VERIFIED_FAILED
+}
+
+enum ApplicationRuntimeSource {
+  RECONSTRUCTION
+  TRUE_EXECUTION
+  REPLAY
+  SYNTHETIC_FIXTURE
+  OWNER_OVERRIDE
+  OWNER_CONFIRMED
+  AI_SELF_PLAY
+  BOOTSTRAP
+  LEGACY
+}
+
+enum RuntimeTrainingReviewDecision {
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationRuntimeExecutionEnvironment {
+  WEB_RECONSTRUCTION
+  DESKTOP_CDP
+  REMOTE_WORKER
+  REPLAY
+  SYNTHETIC
+}
+
+model ScrapeSession {
+  id                  String                  @id @default(cuid())
+  userId              String
+  scrapeId            String                  @unique
+  startedAt           DateTime                @default(now())
+  finishedAt          DateTime?
+  status              ScrapeSessionStatus     @default(RUNNING)
+  trigger             String?
+  mode                String?
+
+  searchTerm          String?
+  city                String?
+  stateCode           String?
+  country             String?
+  remote              Boolean                 @default(false)
+  globalDateRange     String?
+  globalMaxPages      Int?
+  providersRequested  String[]
+  providerOverrides   Json?
+
+  summary             Json?
+
+  user                User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events              ScrapeSessionEvent[]
+
+  @@index([userId, startedAt(sort: Desc)])
+  @@index([scrapeId])
+}
+
+model ScrapeSessionEvent {
+  id          String                 @id @default(cuid())
+  sessionId   String
+  sequence    Int
+  emittedAt   DateTime               @default(now())
+  kind        ScrapeSessionEventKind
+  payload     Json
+
+  session     ScrapeSession          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, sequence])
+}
+
+enum ScrapeSessionStatus {
+  RUNNING
+  COMPLETE
+  ERROR
+  CANCELLED
+}
+
+enum ScrapeSessionEventKind {
+  PROGRESS
+  REQUEST_LOG
+  LOG
+}
+
+enum JobLeadStatus {
+  ADDED
+  QUEUED
+  ANALYZING
+  ANALYZED
+  ANALYSIS_FAILED
+  OPTIMIZING
+  OPTIMIZED
+  OPTIMIZATION_FAILED
+  APPLYING
+  APPLIED
+  REJECTED
+  ADVANCED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_CANCELLED
+  INTERVIEW_COMPLETED
+  INTERVIEWED_NOT_SELECTED
+  OFFER
+  OFFER_DECLINED
+  HIRED
+  REMOVED
+  UNAVAILABLE
+}
+
+enum JobLeadOptimizationStatus {
+  ANALYZING
+  COMPLETED
+  FAILED
+  OPTIMIZING
+  QUEUED
+}
+
+enum JobListingStatus {
+  ADDED_TO_LEADS
+  DISMISSED
+  UNREVIEWED
+}
+
+enum JobSearchStatus {
+  COMPLETED
+  FAILED
+  PROCESSING
+  QUEUED
+}
+
+enum JobType {
+  CONTRACT
+  FULL_TIME
+  FULL_TIME_AND_PART_TIME
+  INTERNSHIP
+  PART_TIME
+  UNKNOWN
+}
+
+enum ResumeAnalysisStatus {
+  ANALYZING
+  COMPLETED
+  PROCESSING
+  FAILED
+  QUEUED
+}
+
+enum ResumeFormat {
+  PDF
+  WORD
+}
+
+enum ResumeKind {
+  UPLOADED
+  STRUCTURED
+  MARKDOWN
+}
+
+enum ResumeOptimizationStatus {
+  ANALYZED
+  ANALYZING
+  COMPLETED
+  FAILED
+  OPTIMIZING
+  PROCESSING
+  QUEUED
+  REVISING
+}
+
+enum ResumeRevisionStatus {
+  ANALYZING
+  COMPLETED
+  FAILED
+  PROCESSING
+  REVISING
+  QUEUED
+}
+
+enum ResumeRevisionType {
+  JOB_LEAD
+  NEW_RESUME
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+  UNREAD
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+  SMS
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum NotificationCategory {
+  APPLICATION_STATUS
+  INTERVIEW_REQUEST
+  JOB_SEARCH
+  RESUME_ANALYSIS
+  AUTOMATION
+  SYSTEM
+  NETWORKING
+  SHARE_ACTIVITY
+  RESUME_FEEDBACK
+}
+
+enum NotificationDigest {
+  NONE
+  DAILY
+  WEEKLY
+}
+
+enum ResumeType {
+  ORIGINAL
+  REVISION
+}
+
+enum CodeReviewStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+  MERGED
+  CLOSED
+}
+
+enum DeploymentStatus {
+  SUCCESS
+  FAILED
+  ROLLBACK
+  IN_PROGRESS
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum GuidedApplicationStatus {
+  DRAFT
+  IN_PROGRESS
+  PAUSED
+  ANALYZING
+  READY_TO_SUBMIT
+  SUBMITTING
+  SUBMITTED
+  FAILED
+  CANCELLED
+}
+
+enum FieldSuggestionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  MODIFIED
+  SKIPPED
+}
+
+enum ApplicationEmailStatus {
+  PENDING
+  ANALYZING
+  ANALYZED
+  NOT_JOB_RELATED
+  MATCHED
+  FAILED
+}
+
+enum PlanBoardStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum PlanBoardEventType {
+  STATUS_CHANGED
+  AGENT_ASSIGNED
+  NOTE_ADDED
+  SIMULATION_STEP
+}
+
+enum ATSAutomationPostureLevel {
+  ALLOWED
+  GRAY
+  FORBIDDEN
+}
+
+/// A long-lived API token issued to a paired desktop install. The raw
+/// token never hits the DB - only a SHA-256 hash is stored.
+/// Scopes are an array of strings so new capabilities (`desktop:audit`,
+/// `desktop:identity-read`) can be added without a schema change.
+model DesktopToken {
+  id            String    @id @default(cuid())
+  userId        String
+  label         String // e.g. "Steven MacBook Pro"
+  deviceOs      String? // e.g. darwin-24.4.0
+  tokenHash     String    @unique // sha-256 hex of the raw token
+  scopes        String[]
+  lastUsedAt    DateTime?
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([revokedAt])
+}
+
+/// Short-lived pairing code the desktop exchanges for a DesktopToken.
+/// Code is stored hashed too; the user sees the raw code once in the
+/// web UI. TTL = 10 minutes.
+model DesktopPairingCode {
+  id              String    @id @default(cuid())
+  userId          String
+  codeHash        String    @unique
+  expiresAt       DateTime
+  consumedAt      DateTime?
+  consumedTokenId String?
+  createdAt       DateTime  @default(now())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([consumedAt])
+}
+
+/// Rows written by the desktop app over the P5.4 token. Separate from
+/// AutomationAuditLog (web-side reconciliation) so the observability
+/// dashboards can filter cleanly. `payload` is sanitized by the desktop
+/// writer before it leaves the machine - identity-read rows redact values.
+model DesktopAuditLog {
+  id              String   @id @default(cuid())
+  userId          String
+  tokenId         String?
+  desktopSessionId String? // client-generated session UUID
+  runtimeSessionId String? // ApplicationRuntimeSession id when applicable
+  jobLeadId       String?
+  toolName        String
+  action          String   // e.g. "tool_call", "submit_attempt", "identity_read"
+  outcome         String?  // "ok" | "error" | null when not applicable
+  payload         Json
+  redactedKeys    String[] @default([])
+  errorMessage    String?
+  durationMs      Int?
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([desktopSessionId, createdAt])
+  @@index([toolName, createdAt])
+  @@index([jobLeadId, createdAt])
+  @@index([runtimeSessionId, createdAt])
+}
+
+enum SubmissionTier {
+  TARGETED
+  GENERIC
+  FIRE_AND_FORGET
+}
+
+enum ConfirmationInboxProvider {
+  IMAP
+  GMAIL
+  OUTLOOK
+}
+
+model ConfirmationInbox {
+  id                    String                    @id @default(cuid())
+  userId                String
+  label                 String
+  provider              ConfirmationInboxProvider
+  emailAddress          String
+  imapHost              String?
+  imapPort              Int?
+  imapSecure            Boolean                   @default(true)
+  imapUsername          String?
+  encryptedSecret       String
+  encryptionKeyVersion  Int                       @default(1)
+  scope                 String?
+  lastSeenUid           String?
+  lastPolledAt          DateTime?
+  pollingCadenceSeconds Int                       @default(300)
+  isActive              Boolean                   @default(true)
+  createdAt             DateTime                  @default(now())
+  updatedAt             DateTime                  @updatedAt
+  user                  User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, emailAddress])
+  @@index([isActive])
+}
+
+enum FollowUpDraftStatus {
+  DRAFT
+  DISMISSED
+  SENT
+}
+
+model FollowUpDraft {
+  id                      String              @id @default(cuid())
+  userId                  String
+  applicationSubmissionId String              @unique
+  subject                 String
+  bodyMarkdown            String
+  daysSinceSubmission     Int
+  status                  FollowUpDraftStatus @default(DRAFT)
+  generatedAt             DateTime            @default(now())
+  reviewedAt              DateTime?
+  sentAt                  DateTime?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+  user                    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationSubmission   ApplicationSubmission @relation(fields: [applicationSubmissionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, generatedAt])
+}
+
+model GuidedApplication {
+  id                    String                   @id @default(cuid())
+  userId                String
+  jobLeadId             String?
+  applicationUrl        String
+  company               String?
+  jobTitle              String?
+  jobProvider           JobProvider?     @map("jobBoard")
+  status                GuidedApplicationStatus  @default(DRAFT)
+  currentStep           Int                      @default(0)
+  totalSteps            Int?
+  progress              Int                      @default(0)
+  lastScreenshotUrl     String?
+  formAnalysis          Json?
+  detectedFields        Json?
+  userAgent             String?
+  sessionCookies        Json?
+  resumeId              String?
+  coverLetterId         String?
+  errorMessage          String?
+  pausedAt              DateTime?
+  submittedAt           DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  user                  User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobLead               JobLead?                 @relation(fields: [jobLeadId], references: [id], onDelete: Cascade)
+  resume                Resume?                  @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  coverLetter           CoverLetter?             @relation(fields: [coverLetterId], references: [id])
+  fieldSuggestions      GuidedFieldSuggestion[]
+  runtimeSessions       ApplicationRuntimeSession[]
+  applicationSubmission ApplicationSubmission?   @relation(fields: [applicationSubmissionId], references: [id])
+  applicationSubmissionId String?                @unique
+
+  @@index([userId])
+  @@index([status])
+  @@index([userId, status])
+}
+
+model ApplicationEmail {
+  id              String                  @id @default(cuid())
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  userId          String
+  fromEmail       String
+  fromName        String?
+  toEmail         String
+  subject         String
+  textBody        String?
+  htmlBody        String?
+  messageId       String?                 @unique
+  receivedAt      DateTime
+  status          ApplicationEmailStatus  @default(PENDING)
+  isJobRelated    Boolean                 @default(false)
+  detectedStatus  String?
+  detectedCompany String?
+  detectedJobTitle String?
+  aiAnalysis      Json?
+  jobLeadId       String?
+  applicationSubmissionId String?
+  user            User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobLead         JobLead?                @relation(fields: [jobLeadId], references: [id], onDelete: SetNull)
+  applicationSubmission ApplicationSubmission? @relation(fields: [applicationSubmissionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([toEmail])
+}
+
+model GuidedFieldSuggestion {
+  id                   String                  @id @default(cuid())
+  guidedApplicationId  String
+  fieldName            String
+  fieldLabel           String?
+  fieldType            String
+  fieldSelector        String?
+  currentValue         String?
+  suggestedValue       String?
+  suggestedSource      String?
+  confidence           Float?
+  status               FieldSuggestionStatus   @default(PENDING)
+  userValue            String?
+  aiReasoning          String?
+  isRequired           Boolean                 @default(false)
+  displayOrder         Int                     @default(0)
+  category             String?
+  metadata             Json?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+  guidedApplication    GuidedApplication       @relation(fields: [guidedApplicationId], references: [id], onDelete: Cascade)
+
+  @@index([guidedApplicationId])
+  @@index([guidedApplicationId, status])
+}
+
+model UserKnowledge {
+  id         String   @id @default(cuid())
+  userId     String
+  key        String
+  value      String
+  source     String   @default("manual")
+  confidence Float    @default(1.0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId])
+}
+
+/// Durable job queue for long-running background work.
+/// Replaces fire-and-forget after() calls with persistent, retryable jobs.
+model JobQueueItem {
+  id                String    @id @default(cuid())
+  type              String    // e.g. OPTIMIZE_JOB_LEAD, SUBMIT_APPLICATION
+  payload           Json
+  status            String    @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED, DEAD
+  priority          Int       @default(0)
+  attempts          Int       @default(0)
+  maxRetries        Int       @default(3)
+  lastError         String?
+  processAfter      DateTime  @default(now())
+  startedAt         DateTime?
+  completedAt       DateTime?
+  deduplicationKey  String?
+  userId            String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([status, processAfter, priority])
+  @@index([deduplicationKey])
+  @@index([userId])
+  @@index([type])
+}
+
+/// Per-(hostname, actionType) token bucket that persists across desktop /
+/// replay process restarts. Shared between the desktop runner and any
+/// network-replay recipe so a single host never exceeds its configured
+/// rolling or per-day rate.
+model HostRateLimitState {
+  id               String   @id @default(cuid())
+  hostname         String
+  actionType       String
+
+  // Rolling bucket (seconds / minutes granularity).
+  tokens           Float
+  capacity         Float
+  refillRatePerSec Float
+  lastRefilledAt   DateTime @default(now())
+
+  // Per-day counter, resets at UTC midnight boundaries.
+  dayCount         Int      @default(0)
+  dayLimit         Int?
+  dayResetAt      DateTime
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([hostname, actionType])
+  @@index([hostname])
+}
+
+/// P4.2 - A recorded HTTP-only submission recipe for a specific ATS
+/// family (or host). The ordered request sequence, extracted tokens,
+/// and confirmation detector together reproduce a manual submission
+/// without driving a browser. Used by `NetworkRecipeRunner` (P4.3).
+///
+/// A recipe is only `ACTIVE` after the owner manually confirmed the
+/// captured waterfall (`source=OWNER_CONFIRMED`). Community and
+/// inferred recipes start `SHADOW` and are only promoted after
+/// regression-suite parity with the CDP runner.
+model NetworkSubmissionRecipe {
+  id                    String                 @id @default(cuid())
+  family                String
+  hostname              String?
+  atsSystemId           String?
+  version               Int                    @default(1)
+  status                NetworkRecipeStatus    @default(SHADOW)
+  source                NetworkRecipeSource    @default(COMMUNITY)
+  confidence            Float                  @default(0)
+  /// Ordered HTTP calls that reconstruct a submission. Each entry:
+  ///   { method, url, headers, bodyTemplate?, expectStatus? }
+  requestSequence       Json
+  /// Named tokens pulled from prior response bodies/headers.
+  /// Entry shape: { name, source: "response"|"header", from: stepIndex,
+  /// path: jsonpath|cssSelector|headerName, required: boolean }
+  variableTokens        Json?
+  /// Required. Matches the final response that means "submission
+  /// accepted". Shape enforced by `recipe-schema.ts`:
+  ///   {
+  ///     statusCode?: number,           // exact match on final response
+  ///     bodyRegex?: string,            // regex against body text
+  ///     headerMatches?: Array<{ header, regex }>
+  ///   }
+  /// At least one of statusCode / bodyRegex / headerMatches MUST be
+  /// present. A recipe without a confirmation detector cannot promote.
+  confirmationDetector  Json
+  /// Optional per-host rate-limit override. If absent, `HostRateLimitState`
+  /// governs dispatch.
+  rateLimit             Json?
+  notes                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  atsSystem             ATSSystem?             @relation(fields: [atsSystemId], references: [id], onDelete: SetNull)
+
+  @@unique([family, version])
+  @@index([family])
+  @@index([hostname])
+  @@index([atsSystemId])
+  @@index([status, updatedAt])
+}
+
+enum NetworkRecipeStatus {
+  ACTIVE
+  SHADOW
+  DISABLED
+}
+
+enum NetworkRecipeSource {
+  OWNER_CONFIRMED
+  COMMUNITY
+  INFERRED
+}
+
+// Local-only archive of every application form HTML the desktop runtime
+// has captured. The HTML itself lives on the user's filesystem under
+// ~/Documents/Gimme Job/{hostname}/. This row records the file path plus
+// the parsed list of detected questions so we can run analytics later
+// (e.g. "what % of forms ask about disability").
+model LocalFormSnapshot {
+  applicationUrl String
+  byteSize       Int
+  capturedAt     DateTime @default(now())
+  fields         Json     // FormSnapshotField[] — { fieldType, label, options, required, selector }
+  filePath       String
+  hostname       String
+  id             String   @id @default(cuid())
+  jobLeadId      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, capturedAt])
+  @@index([hostname])
+  @@index([jobLeadId])
+}
+
+// Per-field feedback the user leaves while reviewing a form snapshot. The
+// LLM reads these on future runs to apply the correction (e.g. "always pick
+// 'LinkedIn' for the source field on greenhouse forms"). Keyed loosely by
+// hostname + label so the same correction applies across companies that use
+// the same Greenhouse template.
+model FormFieldFeedback {
+  applicationUrl String?
+  createdAt      DateTime                       @default(now())
+  feedback       String
+  fieldLabel     String
+  fieldSelector  String?
+  fieldType      String?
+  filledValue    String?
+  hostname       String
+  id             String                         @id @default(cuid())
+  rejectReason   String?
+  snapshotId     String?
+  status         String?
+  updatedAt      DateTime                       @updatedAt
+  userId         String
+  // Semantic embedding of fieldLabel for similarity search against new
+  // questions. Populated lazily by the resolver when missing. See
+  // lib/field-answer/embeddings.ts.
+  embedding      Unsupported("vector(768)")?
+  user           User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, hostname])
+  @@index([userId, fieldLabel])
+}
+
+// User-taught rules for filling form fields. Persists across desktop
+// installs and is consumable by the web's AI-assist flow so a rule
+// taught on one device applies everywhere.
+//
+//   hostname:   null = global rule (matches any site)
+//               "<domain>" = scoped to that ATS host
+//   question:   substring matched against the field's label, case-insensitive
+//   answer:     literal value typed/selected for matching fields
+//   source:     where the rule was taught — "manual" / "state-tab" / "chat"
+// Per-user login credentials for ATS / job-board sites. Used by the
+// resolver to autofill username/password fields and (eventually) to
+// auto-log-in when an application page sits behind a sign-in wall.
+//
+// Storage model: username is plaintext (needed to disambiguate when a
+// user has multiple accounts on the same hostname, and to feed the
+// resolver's "match by username" path). Password is encrypted at the
+// app layer with AES-256-GCM via lib/credentials/cipher.ts; the
+// `password` blob format is `iv (12B) || authTag (16B) || ciphertext`.
+// The encryption key lives in env (`CREDENTIAL_ENCRYPTION_KEY`), so a
+// DB dump alone does not yield plaintext.
+model UserCredential {
+  id        String   @id @default(cuid())
+  userId    String
+  hostname  String
+  label     String?
+  username  String
+  password  Bytes
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, hostname, username])
+  @@index([userId, hostname])
+}
+
+model UserFieldRule {
+  id        String                         @id @default(cuid())
+  userId    String
+  hostname  String?
+  question  String
+  answer    String
+  source    String                         @default("manual")
+  createdAt DateTime                       @default(now())
+  updatedAt DateTime                       @updatedAt
+  // Semantic embedding of `question` for similarity search.
+  embedding Unsupported("vector(768)")?
+  user      User                           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, hostname])
+  @@index([userId, question])
+}

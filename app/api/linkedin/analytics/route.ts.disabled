@@ -1,0 +1,162 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { db } from '@/lib/db/client';
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    const whereClause: any = {
+      userId: user.id,
+    };
+
+    if (startDate && endDate) {
+      whereClause.publishedAt = {
+        gte: new Date(startDate),
+        lte: new Date(endDate),
+      };
+    }
+
+    // Get all analytics records for the date range
+    const analyticsRecords = await db.linkedInContentAnalytics.findMany({
+      where: whereClause,
+      orderBy: {
+        publishedAt: 'desc',
+      },
+    });
+
+    if (analyticsRecords.length === 0) {
+      return NextResponse.json({
+        success: true,
+        analytics: {
+          totalPosts: 0,
+          totalViews: 0,
+          totalLikes: 0,
+          totalComments: 0,
+          totalShares: 0,
+          avgEngagementRate: 0,
+          topPerformingPost: null,
+          performanceByDay: [],
+          performanceByHour: [],
+          contentCategoryPerformance: [],
+        },
+      });
+    }
+
+    // Calculate totals
+    const totalPosts = analyticsRecords.length;
+    const totalViews = analyticsRecords.reduce((sum, record) => sum + record.views, 0);
+    const totalLikes = analyticsRecords.reduce((sum, record) => sum + record.likes, 0);
+    const totalComments = analyticsRecords.reduce((sum, record) => sum + record.comments, 0);
+    const totalShares = analyticsRecords.reduce((sum, record) => sum + record.shares, 0);
+
+    const totalEngagements = totalLikes + totalComments + totalShares;
+    const avgEngagementRate = totalViews > 0 ? (totalEngagements / totalViews) * 100 : 0;
+
+    // Find top performing post
+    const topPerformingPost = analyticsRecords.reduce((best, current) => {
+      const currentEngagements = current.likes + current.comments + current.shares;
+      const bestEngagements = best ? best.likes + best.comments + best.shares : 0;
+      return currentEngagements > bestEngagements ? current : best;
+    }, null as any);
+
+    // Performance by day
+    const performanceByDay = analyticsRecords.reduce((acc, record) => {
+      const date = record.publishedAt.toISOString().split('T')[0];
+      const existing = acc.find(item => item.date === date);
+      
+      if (existing) {
+        existing.views += record.views;
+        existing.likes += record.likes;
+        existing.comments += record.comments;
+        existing.shares += record.shares;
+        existing.postCount++;
+      } else {
+        acc.push({
+          date,
+          views: record.views,
+          likes: record.likes,
+          comments: record.comments,
+          shares: record.shares,
+          postCount: 1,
+          engagementRate: 0, // Will calculate below
+        });
+      }
+      
+      return acc;
+    }, [] as any[]);
+
+    // Calculate engagement rates for each day
+    performanceByDay.forEach(day => {
+      const totalDayEngagements = day.likes + day.comments + day.shares;
+      day.engagementRate = day.views > 0 ? (totalDayEngagements / day.views) * 100 : 0;
+    });
+
+    // Performance by hour
+    const hourlyPerformance = analyticsRecords.reduce((acc, record) => {
+      const hour = record.publishedAt.getHours();
+      const existing = acc.find(item => item.hour === hour);
+      
+      if (existing) {
+        existing.totalViews += record.views;
+        existing.totalEngagements += record.likes + record.comments + record.shares;
+        existing.postCount++;
+      } else {
+        acc.push({
+          hour,
+          totalViews: record.views,
+          totalEngagements: record.likes + record.comments + record.shares,
+          postCount: 1,
+        });
+      }
+      
+      return acc;
+    }, [] as any[]);
+
+    const performanceByHour = hourlyPerformance.map(item => ({
+      hour: item.hour,
+      avgViews: item.totalViews / item.postCount,
+      avgEngagementRate: item.totalViews > 0 ? (item.totalEngagements / item.totalViews) * 100 : 0,
+      postCount: item.postCount,
+    })).sort((a, b) => a.hour - b.hour);
+
+    // Content category performance (placeholder - would need to track categories)
+    const contentCategoryPerformance: any[] = [];
+
+    const analytics = {
+      totalPosts,
+      totalViews,
+      totalLikes,
+      totalComments,
+      totalShares,
+      avgEngagementRate,
+      topPerformingPost: topPerformingPost ? {
+        content: topPerformingPost.content,
+        views: topPerformingPost.views,
+        likes: topPerformingPost.likes,
+        publishedAt: topPerformingPost.publishedAt.toISOString(),
+      } : null,
+      performanceByDay,
+      performanceByHour,
+      contentCategoryPerformance,
+    };
+
+    return NextResponse.json({
+      success: true,
+      analytics,
+    });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch analytics' },
+      { status: 500 }
+    );
+  }
+}

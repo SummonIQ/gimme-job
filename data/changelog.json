@@ -1,0 +1,44 @@
+[
+  {
+    "date": "2026-04-29",
+    "entries": [
+      {
+        "title": "Gimme Job Listings API on RapidAPI",
+        "description": "A new API offering exposes normalized job listings, search filters, facets, provider counts, dataset stats, expired IDs, backfill feeds, and incremental sync routes for teams building on job data."
+      },
+      {
+        "title": "Form snapshot review tools",
+        "description": "Admin review screens now make captured fields easier to inspect, map, note, approve, or flag when a field is hidden, unrelated, or should be handled manually."
+      },
+      {
+        "title": "Safer application form detection",
+        "description": "Assist mode has better handling for select fields, country-style inputs, hidden fields, honeypots, and CAPTCHA-style prompts so autofill can avoid the wrong controls."
+      },
+      {
+        "title": "Refined public pages and brand assets",
+        "description": "Marketing pages now use the updated Gimme Job logo set, improved dark and light mode styling, cleaner pricing/API cards, and downloadable brand assets."
+      }
+    ]
+  },
+  {
+    "date": "2026-04-09",
+    "entries": [
+      {
+        "title": "Smarter job application autofill",
+        "description": "Location, typeahead, and combobox fields now fill reliably across Rippling, Greenhouse, and other React-based ATS forms."
+      },
+      {
+        "title": "Expired job detection learns from every page",
+        "description": "When a job listing is expired or closed, we capture the exact wording so future checks are faster and more accurate across all job boards."
+      },
+      {
+        "title": "Application confirmation detection",
+        "description": "After submitting an application, the system now detects 'thank you' and confirmation messages to verify your submission actually went through."
+      },
+      {
+        "title": "Dark mode for marketing pages",
+        "description": "The landing page, features, pricing, and changelog now respect your system theme preference with a light/dark toggle in the header."
+      }
+    ]
+  }
+]

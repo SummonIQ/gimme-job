@@ -1,0 +1,26 @@
+{
+  "family": "smartrecruiters",
+  "role": "Software Engineer",
+  "company": "Fixture Co",
+  "submitPath": "/fixtures/smartrecruiters/submit",
+  "confirmationPhrase": "Thank you for applying",
+  "confirmationPath": "/fixtures/smartrecruiters/confirmation",
+  "steps": [
+    { "label": "Personal", "step": "personal" },
+    { "label": "Resume", "step": "resume" },
+    { "label": "Details", "step": "details" },
+    { "label": "Consent", "step": "consent" }
+  ],
+  "fields": {
+    "FirstName": { "selector": "#FirstName", "required": true },
+    "LastName": { "selector": "#LastName", "required": true },
+    "Email": { "selector": "#Email", "required": true },
+    "Phone": { "selector": "#Phone", "required": false },
+    "ResumeFile": { "selector": "#ResumeFile", "required": true, "kind": "file" },
+    "City": { "selector": "#City", "required": true },
+    "Country": { "selector": "#Country", "required": true },
+    "CurrentEmployer": { "selector": "#CurrentEmployer", "required": false },
+    "PrivacyConsent": { "selector": "#PrivacyConsent", "required": true, "kind": "checkbox" }
+  },
+  "submitSelector": "#sr-submit-button"
+}

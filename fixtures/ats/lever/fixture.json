@@ -1,0 +1,22 @@
+{
+  "family": "lever",
+  "role": "Staff Engineer",
+  "company": "Fixture Co",
+  "submitPath": "/fixtures/lever/submit",
+  "confirmationPhrase": "Thanks for applying!",
+  "confirmationPath": "/fixtures/lever/confirmation",
+  "steps": [
+    { "label": "Application", "sectionClass": "application-question" },
+    { "label": "Consent", "sectionClass": "application-question" }
+  ],
+  "fields": {
+    "name": { "selector": "#name", "required": true },
+    "email": { "selector": "#email", "required": true },
+    "phone": { "selector": "#phone", "required": false },
+    "resume": { "selector": "#resume", "required": true, "kind": "file" },
+    "org": { "selector": "#org", "required": false },
+    "additional": { "selector": "#additional", "required": false, "kind": "textarea" },
+    "consent_privacy": { "selector": "#consent_privacy", "required": true, "kind": "checkbox" }
+  },
+  "submitSelector": "button.template-btn-submit"
+}

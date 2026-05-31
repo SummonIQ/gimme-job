@@ -1,0 +1,53 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { submitLinkedInApplication } from "@/lib/applications/services/linkedin-enhanced";
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const data = await request.json();
+    const { jobId, jobUrl, resumeId, coverLetterId, profileData, questionAnswers } = data;
+
+    // Submit the application
+    const result = await submitLinkedInApplication({
+      jobId,
+      jobUrl,
+      resumeData: resumeId, // This would need to be fetched from DB
+      coverLetterData: coverLetterId, // This would need to be fetched from DB
+      customFields: {
+        resumeId,
+        coverLetterId,
+        ...profileData,
+        questionAnswers,
+      },
+    });
+
+    if (result.success) {
+      return NextResponse.json({
+        success: true,
+        applicationId: result.applicationId,
+        confirmationCode: result.confirmationCode,
+        metadata: result.metadata,
+      });
+    } else {
+      return NextResponse.json(
+        {
+          success: false,
+          error: result.error,
+          metadata: result.metadata,
+        },
+        { status: 400 }
+      );
+    }
+  } catch (error) {
+    console.error("LinkedIn application submission error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to submit application" },
+      { status: 500 }
+    );
+  }
+}

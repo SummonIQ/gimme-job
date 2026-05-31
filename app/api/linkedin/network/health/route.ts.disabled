@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { calculateNetworkHealth } from "@/lib/linkedin/network-growth";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const healthScore = await calculateNetworkHealth();
+    return NextResponse.json(healthScore);
+  } catch (error) {
+    console.error("Failed to calculate network health:", error);
+    return NextResponse.json(
+      { error: "Failed to calculate network health" },
+      { status: 500 }
+    );
+  }
+}

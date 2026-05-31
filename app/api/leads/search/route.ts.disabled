@@ -1,0 +1,220 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { searchProspects, SearchRequest } from '@/lib/leads/enrichment-pipeline';
+import { z } from 'zod';
+
+const searchRequestSchema = z.object({
+  keywords: z.string().optional(),
+  jobTitles: z.array(z.string()).optional(),
+  companies: z.array(z.string()).optional(),
+  industries: z.array(z.string()).optional(),
+  locations: z.array(z.string()).optional(),
+  companySize: z.array(z.string()).optional(),
+  limit: z.number().min(1).max(100).optional(),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validatedData = searchRequestSchema.parse(body);
+
+    // Check if user has API credentials configured
+    const { db } = await import('@/lib/db/client');
+    const hasApolloCredentials = await db.userIntegration.findUnique({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider: 'APOLLO',
+        },
+      },
+    });
+
+    const hasZoomInfoCredentials = await db.userIntegration.findUnique({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider: 'ZOOMINFO',
+        },
+      },
+    });
+
+    if (!hasApolloCredentials && !hasZoomInfoCredentials) {
+      return NextResponse.json(
+        { error: 'No lead data providers configured. Please configure Apollo.io or ZoomInfo credentials.' },
+        { status: 400 }
+      );
+    }
+
+    // Prepare search request
+    const searchRequest: SearchRequest = {
+      ...validatedData,
+      userId: user.id,
+    };
+
+    // Execute search
+    const result = await searchProspects(searchRequest);
+
+    return NextResponse.json({
+      success: true,
+      message: `Search completed successfully. Found ${result.totalResults} prospects.`,
+      data: {
+        searchId: result.searchResultId,
+        totalResults: result.totalResults,
+        processedResults: result.processedResults,
+        queuedForEnrichment: result.queuedForEnrichment,
+        errors: result.errors,
+      },
+    });
+  } catch (error) {
+    console.error('Lead search failed:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid search parameters', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to search for prospects' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const searchId = searchParams.get('searchId');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '25', 10);
+
+    const { db } = await import('@/lib/db/client');
+
+    if (searchId) {
+      // Get specific search results
+      const search = await db.leadSearch.findFirst({
+        where: {
+          id: searchId,
+          userId: user.id,
+        },
+        include: {
+          results: {
+            include: {
+              enrichedLead: {
+                include: {
+                  company: true,
+                },
+              },
+            },
+            skip: (page - 1) * limit,
+            take: limit,
+            orderBy: { createdAt: 'desc' },
+          },
+          _count: {
+            select: {
+              results: true,
+            },
+          },
+        },
+      });
+
+      if (!search) {
+        return NextResponse.json({ error: 'Search not found' }, { status: 404 });
+      }
+
+      const resultsWithDetails = search.results.map(result => ({
+        id: result.id,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        email: result.email,
+        jobTitle: result.jobTitle,
+        companyName: result.companyName,
+        companyDomain: result.companyDomain,
+        dataProvider: result.dataProvider,
+        processingStatus: result.processingStatus,
+        createdAt: result.createdAt,
+        processedAt: result.processedAt,
+        enrichedLead: result.enrichedLead ? {
+          id: result.enrichedLead.id,
+          leadScore: result.enrichedLead.leadScore,
+          status: result.enrichedLead.status,
+          dataQuality: result.enrichedLead.dataQuality,
+          phone: result.enrichedLead.phone,
+          linkedinUrl: result.enrichedLead.linkedinUrl,
+          company: result.enrichedLead.company ? {
+            name: result.enrichedLead.company.name,
+            industry: result.enrichedLead.company.industry,
+            companySize: result.enrichedLead.company.companySize,
+            employeeCount: result.enrichedLead.company.employeeCount,
+            website: result.enrichedLead.company.website,
+          } : null,
+        } : null,
+      }));
+
+      return NextResponse.json({
+        success: true,
+        search: {
+          id: search.id,
+          searchQuery: search.searchQuery,
+          filters: search.filters,
+          status: search.status,
+          totalResults: search.totalResults,
+          createdAt: search.createdAt,
+          completedAt: search.completedAt,
+        },
+        results: resultsWithDetails,
+        pagination: {
+          page,
+          limit,
+          totalResults: search._count.results,
+          totalPages: Math.ceil(search._count.results / limit),
+        },
+      });
+    } else {
+      // Get user's search history
+      const searches = await db.leadSearch.findMany({
+        where: { userId: user.id },
+        include: {
+          _count: {
+            select: {
+              results: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 20, // Limit to recent searches
+      });
+
+      return NextResponse.json({
+        success: true,
+        searches: searches.map(search => ({
+          id: search.id,
+          searchQuery: search.searchQuery,
+          filters: search.filters,
+          status: search.status,
+          totalResults: search.totalResults,
+          resultCount: search._count.results,
+          createdAt: search.createdAt,
+          completedAt: search.completedAt,
+        })),
+      });
+    }
+  } catch (error) {
+    console.error('Failed to get search results:', error);
+    return NextResponse.json(
+      { error: 'Failed to get search results' },
+      { status: 500 }
+    );
+  }
+}

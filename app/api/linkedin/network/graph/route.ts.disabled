@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { buildNetworkGraph } from "@/lib/linkedin/network-analysis";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const networkGraph = await buildNetworkGraph();
+    return NextResponse.json(networkGraph);
+  } catch (error) {
+    console.error("Failed to build network graph:", error);
+    return NextResponse.json(
+      { error: "Failed to build network graph" },
+      { status: 500 }
+    );
+  }
+}

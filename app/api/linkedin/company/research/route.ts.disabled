@@ -1,0 +1,30 @@
+import { NextResponse } from "next/server";
+import { researchCompany } from "@/lib/linkedin/company-research";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function POST(request: Request) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { companyIdentifier, options } = await request.json();
+
+    if (!companyIdentifier) {
+      return NextResponse.json(
+        { error: "Company identifier is required" },
+        { status: 400 }
+      );
+    }
+
+    const companyProfile = await researchCompany(companyIdentifier, options);
+    return NextResponse.json(companyProfile);
+  } catch (error) {
+    console.error("Failed to research company:", error);
+    return NextResponse.json(
+      { error: "Failed to research company" },
+      { status: 500 }
+    );
+  }
+}

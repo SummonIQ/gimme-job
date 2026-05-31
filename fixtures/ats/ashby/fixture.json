@@ -1,0 +1,22 @@
+{
+  "family": "ashby",
+  "role": "Frontend Engineer",
+  "company": "Fixture Co",
+  "submitPath": "/fixtures/ashby/submit",
+  "confirmationPhrase": "Application Received",
+  "confirmationPath": "/fixtures/ashby/confirmation",
+  "steps": [
+    { "label": "Application", "sectionClass": "ashby-field" }
+  ],
+  "fields": {
+    "firstName": { "selector": "#firstName", "required": true },
+    "lastName": { "selector": "#lastName", "required": true },
+    "email": { "selector": "#email", "required": true },
+    "phone": { "selector": "#phone", "required": false },
+    "resume": { "selector": "#resume", "required": true, "kind": "file" },
+    "linkedin": { "selector": "#linkedin", "required": false },
+    "location": { "selector": "#location", "required": true },
+    "custom_visa": { "selector": "input[name=custom_visa]", "required": true, "kind": "radio" }
+  },
+  "submitSelector": "button.ashby-submit-button"
+}

@@ -1,0 +1,52 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { db } from "@/lib/db/client";
+import { LinkedInConnectionStatus } from "@prisma/client";
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status") as LinkedInConnectionStatus | null;
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const offset = parseInt(searchParams.get("offset") || "0");
+
+    const where: any = { userId: user.id };
+    if (status && status !== "all") {
+      where.status = status;
+    }
+
+    const connections = await db.linkedInConnection.findMany({
+      where,
+      include: {
+        template: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip: offset,
+    });
+
+    const total = await db.linkedInConnection.count({ where });
+
+    return NextResponse.json({
+      connections,
+      total,
+      hasMore: total > offset + limit,
+    });
+  } catch (error) {
+    console.error("Error fetching connections:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch connections" },
+      { status: 500 }
+    );
+  }
+}

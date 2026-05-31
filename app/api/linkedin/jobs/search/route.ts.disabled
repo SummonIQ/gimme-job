@@ -1,0 +1,65 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { searchLinkedInJobs } from "@/lib/api/linkedin-jobs";
+import { checkLinkedInApplicationStatus } from "@/lib/applications/services/linkedin-enhanced";
+import { withRateLimit } from "@/lib/rate-limit/middleware";
+
+export async function GET(request: NextRequest) {
+  // Apply rate limiting: 10 requests per minute for LinkedIn searches
+  const rateLimitError = await withRateLimit(request, {
+    preset: 'linkedinSearch',
+    message: 'Too many LinkedIn searches. Please wait before trying again.',
+  });
+
+  if (rateLimitError) {
+    return rateLimitError;
+  }
+
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    
+    // Build search parameters
+    const params = {
+      keywords: searchParams.get("keywords") || undefined,
+      location: searchParams.get("location") || undefined,
+      easyApply: searchParams.get("easyApply") === "true",
+      limit: parseInt(searchParams.get("limit") || "25"),
+      offset: parseInt(searchParams.get("offset") || "0"),
+      datePosted: searchParams.get("datePosted") as any || undefined,
+      remote: searchParams.get("remote") === "true" ? true : undefined,
+    };
+
+    // Search for jobs
+    const result = await searchLinkedInJobs(params);
+
+    // Check which jobs have been applied to
+    const jobsWithStatus = await Promise.all(
+      result.jobs.map(async (job) => {
+        const status = await checkLinkedInApplicationStatus(job.id);
+        return {
+          ...job,
+          applied: status.applied,
+          applicationId: status.applicationId,
+          appliedAt: status.appliedAt,
+        };
+      })
+    );
+
+    return NextResponse.json({
+      jobs: jobsWithStatus,
+      total: result.total,
+      hasMore: result.hasMore,
+    });
+  } catch (error) {
+    console.error("LinkedIn job search error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to search jobs" },
+      { status: 500 }
+    );
+  }
+}

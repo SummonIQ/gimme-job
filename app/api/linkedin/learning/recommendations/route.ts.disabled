@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { generateRecommendationsFromSkillGap, getPersonalizedRecommendations } from '@/lib/linkedin/learning-recommendations';
+import { z } from 'zod';
+
+const skillGapRecommendationSchema = z.object({
+  skillGapAnalysisId: z.string().min(1, 'Skill gap analysis ID is required'),
+  maxRecommendations: z.number().min(1).max(20).optional().default(10),
+  difficultyFilter: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  includePrerequisites: z.boolean().optional().default(true),
+});
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const skillGapAnalysisId = searchParams.get('skillGapAnalysisId');
+
+    if (skillGapAnalysisId) {
+      // Get recommendations based on skill gap analysis
+      const maxRecommendations = parseInt(searchParams.get('maxRecommendations') || '10');
+      const difficultyFilter = searchParams.get('difficultyFilter') as 'beginner' | 'intermediate' | 'advanced' | null;
+      const includePrerequisites = searchParams.get('includePrerequisites') !== 'false';
+
+      const recommendations = await generateRecommendationsFromSkillGap(skillGapAnalysisId, {
+        maxRecommendations,
+        difficultyFilter: difficultyFilter || undefined,
+        includePrerequisites,
+      });
+
+      return NextResponse.json(recommendations);
+    } else {
+      // Get general personalized recommendations
+      const recommendations = await getPersonalizedRecommendations();
+      return NextResponse.json(recommendations);
+    }
+  } catch (error) {
+    console.error('Error fetching learning recommendations:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch recommendations' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validation = skillGapRecommendationSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { skillGapAnalysisId, maxRecommendations, difficultyFilter, includePrerequisites } = validation.data;
+
+    const recommendations = await generateRecommendationsFromSkillGap(skillGapAnalysisId, {
+      maxRecommendations,
+      difficultyFilter,
+      includePrerequisites,
+    });
+
+    return NextResponse.json({
+      success: true,
+      recommendations,
+    });
+  } catch (error) {
+    console.error('Error generating recommendations:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate recommendations' },
+      { status: 500 }
+    );
+  }
+}

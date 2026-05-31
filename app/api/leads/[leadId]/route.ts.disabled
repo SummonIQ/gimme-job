@@ -1,0 +1,396 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import {
+  calculateLeadScore,
+  updateLeadScoring,
+} from '@/lib/leads/scoring-system';
+import { JobLeadStatus } from '@prisma/client';
+import { z } from 'zod';
+
+const updateLeadSchema = z.object({
+  status: z
+    .enum([
+      'NEW',
+      'CONTACTED',
+      'QUALIFIED',
+      'PROPOSAL_SENT',
+      'NEGOTIATING',
+      'WON',
+      'LOST',
+      'NURTURING',
+      'DISQUALIFIED',
+    ])
+    .optional(),
+  qualificationNotes: z.string().optional(),
+  assignedToUserId: z.string().optional(),
+});
+
+const addActivitySchema = z.object({
+  type: z.enum([
+    'CALL',
+    'EMAIL',
+    'MEETING',
+    'NOTE',
+    'LINKEDIN_MESSAGE',
+    'DEMO',
+    'PROPOSAL_SENT',
+    'FOLLOW_UP',
+    'SCORING',
+  ]),
+  description: z.string().min(1),
+  metadata: z.record(z.any()).optional(),
+});
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { leadId: string } },
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { leadId } = params;
+    const { db } = await import('@/lib/db/client');
+
+    const lead = await db.enrichedLead.findFirst({
+      where: {
+        id: leadId,
+        assignedToUserId: user.id,
+      },
+      include: {
+        company: true,
+        activities: {
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!lead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+
+    const leadWithDetails = {
+      id: lead.id,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      fullName: lead.fullName,
+      email: lead.email,
+      personalEmail: lead.personalEmail,
+      phone: lead.phone,
+      linkedinUrl: lead.linkedinUrl,
+      jobTitle: lead.jobTitle,
+      department: lead.department,
+      seniority: lead.seniority,
+      isDecisionMaker: lead.isDecisionMaker,
+      status: lead.status,
+      leadScore: lead.leadScore,
+      dataQuality: lead.dataQuality,
+      dataProvider: lead.dataProvider,
+      qualificationNotes: lead.qualificationNotes,
+      lastEnrichedAt: lead.lastEnrichedAt,
+      createdAt: lead.createdAt,
+      updatedAt: lead.updatedAt,
+      company: lead.company
+        ? {
+            id: lead.company.id,
+            name: lead.company.name,
+            domain: lead.company.domain,
+            website: lead.company.website,
+            linkedinUrl: lead.company.linkedinUrl,
+            description: lead.company.description,
+            industry: lead.company.industry,
+            subIndustry: lead.company.subIndustry,
+            companySize: lead.company.companySize,
+            employeeCount: lead.company.employeeCount,
+            foundedYear: lead.company.foundedYear,
+            annualRevenue: lead.company.annualRevenue,
+            fundingStage: lead.company.fundingStage,
+            totalFunding: lead.company.totalFunding,
+            headquarters: lead.company.headquarters,
+            locations: lead.company.locations,
+            technologies: lead.company.technologies,
+            intentSignals: lead.company.intentSignals,
+            intentScore: lead.company.intentScore,
+            dataQuality: lead.company.dataQuality,
+            lastEnrichedAt: lead.company.lastEnrichedAt,
+          }
+        : null,
+      activities: lead.activities.map(activity => ({
+        id: activity.id,
+        type: activity.type,
+        description: activity.description,
+        metadata: activity.metadata,
+        createdAt: activity.createdAt,
+        user: activity.user
+          ? {
+              name: `${activity.user.firstName} ${activity.user.lastName}`,
+              email: activity.user.email,
+            }
+          : null,
+      })),
+    };
+
+    return NextResponse.json({
+      success: true,
+      lead: leadWithDetails,
+    });
+  } catch (error) {
+    console.error('Failed to get lead:', error);
+    return NextResponse.json({ error: 'Failed to get lead' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { leadId: string } },
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { leadId } = params;
+    const body = await request.json();
+    const validatedData = updateLeadSchema.parse(body);
+
+    const { db } = await import('@/lib/db/client');
+
+    // Check if lead exists and user has access
+    const existingLead = await db.enrichedLead.findFirst({
+      where: {
+        id: leadId,
+        assignedToUserId: user.id,
+      },
+    });
+
+    if (!existingLead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+
+    // Update lead
+    const updatedLead = await db.enrichedLead.update({
+      where: { id: leadId },
+      data: {
+        ...validatedData,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Log the update activity
+    const activityDescription = [];
+    if (validatedData.status && validatedData.status !== existingLead.status) {
+      activityDescription.push(
+        `Status changed from ${existingLead.status} to ${validatedData.status}`,
+      );
+    }
+    if (
+      validatedData.qualificationNotes &&
+      validatedData.qualificationNotes !== existingLead.qualificationNotes
+    ) {
+      activityDescription.push('Qualification notes updated');
+    }
+    if (
+      validatedData.assignedToUserId &&
+      validatedData.assignedToUserId !== existingLead.assignedToUserId
+    ) {
+      activityDescription.push(`Reassigned to new user`);
+    }
+
+    if (activityDescription.length > 0) {
+      await db.leadActivity.create({
+        data: {
+          leadId,
+          type: 'NOTE',
+          description: `Lead updated: ${activityDescription.join(', ')}`,
+          userId: user.id,
+          metadata: {
+            changes: validatedData,
+            previousValues: {
+              status: existingLead.status,
+              qualificationNotes: existingLead.qualificationNotes,
+              assignedToUserId: existingLead.assignedToUserId,
+            },
+          },
+        },
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Lead updated successfully',
+      lead: {
+        id: updatedLead.id,
+        status: updatedLead.status,
+        qualificationNotes: updatedLead.qualificationNotes,
+        assignedToUserId: updatedLead.assignedToUserId,
+        updatedAt: updatedLead.updatedAt,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to update lead:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid update data', details: error.errors },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to update lead' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { leadId: string } },
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { leadId } = params;
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+
+    const { db } = await import('@/lib/db/client');
+
+    // Check if lead exists and user has access
+    const existingLead = await db.enrichedLead.findFirst({
+      where: {
+        id: leadId,
+        assignedToUserId: user.id,
+      },
+    });
+
+    if (!existingLead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+
+    if (action === 'activity') {
+      // Add activity to lead
+      const body = await request.json();
+      const validatedData = addActivitySchema.parse(body);
+
+      const activity = await db.leadActivity.create({
+        data: {
+          leadId,
+          type: validatedData.type,
+          description: validatedData.description,
+          metadata: validatedData.metadata || {},
+          userId: user.id,
+        },
+        include: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Activity added successfully',
+        activity: {
+          id: activity.id,
+          type: activity.type,
+          description: activity.description,
+          metadata: activity.metadata,
+          createdAt: activity.createdAt,
+          user: {
+            name: `${activity.user!.firstName} ${activity.user!.lastName}`,
+            email: activity.user!.email,
+          },
+        },
+      });
+    } else if (action === 'score') {
+      // Recalculate lead score
+      const scoringResult = await calculateLeadScore(leadId);
+      await updateLeadScoring(scoringResult);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Lead scored successfully',
+        scoring: scoringResult,
+      });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('Lead action failed:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid data', details: error.errors },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to perform lead action' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { leadId: string } },
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { leadId } = params;
+    const { db } = await import('@/lib/db/client');
+
+    // Check if lead exists and user has access
+    const existingLead = await db.enrichedLead.findFirst({
+      where: {
+        id: leadId,
+        assignedToUserId: user.id,
+      },
+    });
+
+    if (!existingLead) {
+      return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
+    }
+
+    // Delete lead (cascade will handle related records)
+    await db.enrichedLead.delete({
+      where: { id: leadId },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Lead deleted successfully',
+    });
+  } catch (error) {
+    console.error('Failed to delete lead:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete lead' },
+      { status: 500 },
+    );
+  }
+}

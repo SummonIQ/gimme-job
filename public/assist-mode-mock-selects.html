@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assist Mode Mock Selects</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      .row { margin-bottom: 16px; }
+      label { display: block; margin-bottom: 6px; font-weight: 600; }
+      select, input { padding: 8px 10px; min-width: 280px; }
+    </style>
+  </head>
+  <body>
+    <h1>Select Interaction Mock</h1>
+    <div class="row">
+      <label for="workAuth">Work authorization</label>
+      <select id="workAuth" name="workAuthorization">
+        <option value="">Select...</option>
+        <option value="Authorized">Authorized to work in US</option>
+        <option value="Need Sponsorship">Need sponsorship</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label for="state">State</label>
+      <select id="state" name="state">
+        <option value="">Select...</option>
+        <option value="CA">California</option>
+        <option value="NY">New York</option>
+      </select>
+    </div>
+  </body>
+</html>

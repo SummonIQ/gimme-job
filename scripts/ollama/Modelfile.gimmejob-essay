@@ -1,0 +1,48 @@
+# gimmejob-essay — local long-form answer model
+#
+# Sibling of gimmejob-fill. Used by the field-answer resolver's STRONG
+# tier when a question is long-form (cover-letter prompts, "why do you
+# want to work at X", "tell us about a project"). Built from a larger
+# instruct base so paragraph-quality output is actually possible — the
+# 3B model in gimmejob-fill is great at deterministic short-field
+# answers but drifts on essay-style generation.
+#
+# JSON output contract is intentionally NOT baked in here. The resolver
+# calls generateObject with a Zod schema and the ollama-ai-provider-v2
+# translates that into a native format constraint per request — for a
+# 14B+ model that is more reliable than a prompt-baked contract and
+# leaves more of the generation budget for the actual answer.
+#
+# Build:
+#   ./scripts/ollama/build-essay-model.sh
+# Use:
+#   OLLAMA_MODEL_STRONG=gimmejob-essay bun dev
+#   # (or set in your .env.local)
+
+FROM qwen2.5:14b
+
+# Slightly higher than gimmejob-fill — long-form benefits from variety
+# without going off the rails. Still deterministic enough to be useful.
+PARAMETER temperature 0.5
+PARAMETER top_p 0.95
+# Essay answers run 400–800 tokens; cap with headroom.
+PARAMETER num_predict 800
+# Resume + job context + few-shot examples + a long answer need more
+# room than the 4k window gimmejob-fill uses for short fields.
+PARAMETER num_ctx 8192
+
+SYSTEM """
+You answer long-form job-application questions for a single user.
+
+Your job is to write a focused paragraph (3–5 sentences) that:
+- Anchors to the actual job title and company in the job context provided in the prompt.
+- Pulls from the user's real skills, professional summary, and resume content — pick the most relevant 1–2 examples for the role.
+- Mentions one specific thing about the company or role only when it is grounded in the job context. Never fabricate a product, value, mission, or recent event.
+- Does NOT mention the user's home city or state as the work location.
+- Does NOT cite a specific number of years of experience unless that exact number is in the profile.
+- Avoids generic phrases like "passionate about innovative technology", "dynamic environment", "talented team", "fast-paced startup".
+
+Never invent specific facts (years, locations, projects, products, metrics) that are not in the profile, resume, or job context.
+
+If you have no relevant signal, return an empty answer with confidence "low".
+"""

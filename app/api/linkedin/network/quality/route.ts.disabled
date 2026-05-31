@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { analyzeConnectionQuality } from "@/lib/linkedin/network-growth";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const qualityMetrics = await analyzeConnectionQuality();
+    return NextResponse.json(qualityMetrics);
+  } catch (error) {
+    console.error("Failed to analyze connection quality:", error);
+    return NextResponse.json(
+      { error: "Failed to analyze connection quality" },
+      { status: 500 }
+    );
+  }
+}

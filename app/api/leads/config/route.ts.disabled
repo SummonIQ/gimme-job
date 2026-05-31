@@ -1,0 +1,251 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import * as apolloClient from '@/lib/api/apollo-client';
+import * as zoomInfoClient from '@/lib/api/zoominfo-client';
+import { z } from 'zod';
+
+const apolloConfigSchema = z.object({
+  apiKey: z.string().min(1, 'Apollo.io API key is required'),
+});
+
+const zoomInfoConfigSchema = z.object({
+  username: z.string().min(1, 'ZoomInfo username is required'),
+  password: z.string().min(1, 'ZoomInfo password is required'),
+});
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { db } = await import('@/lib/db/client');
+
+    // Get current integrations status
+    const integrations = await db.userIntegration.findMany({
+      where: {
+        userId: user.id,
+        provider: { in: ['APOLLO', 'ZOOMINFO'] },
+      },
+      select: {
+        provider: true,
+        expiresAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const status = {
+      apollo: {
+        configured: false,
+        connected: false,
+        lastTested: null as Date | null,
+        expiresAt: null as Date | null,
+      },
+      zoomInfo: {
+        configured: false,
+        connected: false,
+        lastTested: null as Date | null,
+        expiresAt: null as Date | null,
+      },
+    };
+
+    // Check Apollo.io status
+    const apolloIntegration = integrations.find(i => i.provider === 'APOLLO');
+    if (apolloIntegration) {
+      status.apollo.configured = true;
+      status.apollo.lastTested = apolloIntegration.updatedAt;
+      status.apollo.expiresAt = apolloIntegration.expiresAt;
+
+      // Test connection
+      try {
+        const testResult = await apolloClient.testConnection();
+        status.apollo.connected = testResult.success;
+      } catch (error) {
+        status.apollo.connected = false;
+      }
+    }
+
+    // Check ZoomInfo status
+    const zoomInfoIntegration = integrations.find(i => i.provider === 'ZOOMINFO');
+    if (zoomInfoIntegration) {
+      status.zoomInfo.configured = true;
+      status.zoomInfo.lastTested = zoomInfoIntegration.updatedAt;
+      status.zoomInfo.expiresAt = zoomInfoIntegration.expiresAt;
+
+      // Test connection
+      try {
+        const testResult = await zoomInfoClient.testConnection();
+        status.zoomInfo.connected = testResult.success;
+      } catch (error) {
+        status.zoomInfo.connected = false;
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      integrations: status,
+    });
+  } catch (error) {
+    console.error('Failed to get integration status:', error);
+    return NextResponse.json(
+      { error: 'Failed to get integration status' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const provider = searchParams.get('provider');
+    const action = searchParams.get('action');
+
+    if (!provider || !['apollo', 'zoominfo'].includes(provider)) {
+      return NextResponse.json(
+        { error: 'Invalid provider. Must be "apollo" or "zoominfo"' },
+        { status: 400 }
+      );
+    }
+
+    const body = await request.json();
+
+    if (action === 'configure') {
+      if (provider === 'apollo') {
+        // Configure Apollo.io
+        const validatedData = apolloConfigSchema.parse(body);
+
+        try {
+          await apolloClient.storeCredentials(validatedData.apiKey);
+
+          // Test the connection
+          const testResult = await apolloClient.testConnection();
+
+          return NextResponse.json({
+            success: true,
+            message: 'Apollo.io configured successfully',
+            connected: testResult.success,
+            details: testResult.message,
+          });
+        } catch (error) {
+          return NextResponse.json(
+            { error: 'Failed to configure Apollo.io: ' + (error instanceof Error ? error.message : 'Unknown error') },
+            { status: 400 }
+          );
+        }
+      } else if (provider === 'zoominfo') {
+        // Configure ZoomInfo
+        const validatedData = zoomInfoConfigSchema.parse(body);
+
+        try {
+          await zoomInfoClient.storeCredentials(validatedData.username, validatedData.password);
+
+          // Test the connection
+          const testResult = await zoomInfoClient.testConnection();
+
+          return NextResponse.json({
+            success: true,
+            message: 'ZoomInfo configured successfully',
+            connected: testResult.success,
+            details: testResult.message,
+          });
+        } catch (error) {
+          return NextResponse.json(
+            { error: 'Failed to configure ZoomInfo: ' + (error instanceof Error ? error.message : 'Unknown error') },
+            { status: 400 }
+          );
+        }
+      }
+    } else if (action === 'test') {
+      // Test existing connection
+      if (provider === 'apollo') {
+        try {
+          const testResult = await apolloClient.testConnection();
+          return NextResponse.json({
+            success: testResult.success,
+            message: testResult.message,
+          });
+        } catch (error) {
+          return NextResponse.json(
+            { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
+          );
+        }
+      } else if (provider === 'zoominfo') {
+        try {
+          const testResult = await zoomInfoClient.testConnection();
+          return NextResponse.json({
+            success: testResult.success,
+            message: testResult.message,
+          });
+        } catch (error) {
+          return NextResponse.json(
+            { success: false, message: error instanceof Error ? error.message : 'Unknown error' }
+          );
+        }
+      }
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('Configuration failed:', error);
+
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid configuration data', details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to configure integration' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const provider = searchParams.get('provider');
+
+    if (!provider || !['apollo', 'zoominfo'].includes(provider)) {
+      return NextResponse.json(
+        { error: 'Invalid provider. Must be "apollo" or "zoominfo"' },
+        { status: 400 }
+      );
+    }
+
+    const { db } = await import('@/lib/db/client');
+
+    // Remove the integration
+    const providerName = provider === 'apollo' ? 'APOLLO' : 'ZOOMINFO';
+
+    await db.userIntegration.deleteMany({
+      where: {
+        userId: user.id,
+        provider: providerName,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `${provider === 'apollo' ? 'Apollo.io' : 'ZoomInfo'} integration removed successfully`,
+    });
+  } catch (error) {
+    console.error('Failed to remove integration:', error);
+    return NextResponse.json(
+      { error: 'Failed to remove integration' },
+      { status: 500 }
+    );
+  }
+}

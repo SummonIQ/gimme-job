@@ -1,0 +1,36 @@
+import { NextResponse } from "next/server";
+import { findConnectionPaths } from "@/lib/linkedin/connection-paths";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function POST(request: Request) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { targetName, targetTitle, targetCompany, targetLinkedInUrl } = await request.json();
+
+    if (!targetName) {
+      return NextResponse.json(
+        { error: "Target name is required" },
+        { status: 400 }
+      );
+    }
+
+    const connectionPath = await findConnectionPaths({
+      name: targetName,
+      title: targetTitle || "",
+      company: targetCompany || "",
+      linkedInUrl: targetLinkedInUrl,
+    });
+
+    return NextResponse.json(connectionPath);
+  } catch (error) {
+    console.error("Failed to find connection path:", error);
+    return NextResponse.json(
+      { error: "Failed to find connection path" },
+      { status: 500 }
+    );
+  }
+}

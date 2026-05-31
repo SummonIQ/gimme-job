@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Senior Software Engineer - Fixture Co</title>
+    <meta name="ats-family" content="greenhouse" />
+  </head>
+  <body data-board="fixture-co">
+    <div id="main" class="application" data-stage="contact">
+      <h1 id="job_title">Senior Software Engineer</h1>
+      <div class="company">Fixture Co</div>
+
+      <form
+        id="application_form"
+        method="post"
+        action="/fixtures/greenhouse/submit"
+        enctype="multipart/form-data"
+      >
+        <fieldset id="section_contact">
+          <legend>Contact Information</legend>
+          <label for="first_name">First Name *</label>
+          <input type="text" id="first_name" name="first_name" required />
+
+          <label for="last_name">Last Name *</label>
+          <input type="text" id="last_name" name="last_name" required />
+
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" />
+        </fieldset>
+
+        <fieldset id="section_resume">
+          <legend>Resume</legend>
+          <label for="resume">Resume *</label>
+          <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required />
+
+          <label for="cover_letter">Cover Letter</label>
+          <input type="file" id="cover_letter" name="cover_letter" accept=".pdf,.doc,.docx" />
+        </fieldset>
+
+        <fieldset id="section_questions">
+          <legend>Additional Information</legend>
+          <label for="question_authorized">Are you authorized to work in the US? *</label>
+          <select id="question_authorized" name="question_authorized" required>
+            <option value="">Select...</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+
+          <label for="question_years">Years of experience *</label>
+          <input type="number" id="question_years" name="question_years" min="0" required />
+        </fieldset>
+
+        <fieldset id="section_review">
+          <legend>Review</legend>
+          <p>Please review your application before submitting.</p>
+        </fieldset>
+
+        <button type="submit" id="submit_app">Submit Application</button>
+      </form>
+    </div>
+  </body>
+</html>

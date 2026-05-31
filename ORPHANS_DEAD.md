@@ -1,0 +1,354 @@
+# Orphans / Dead Code Report
+
+Generated: 2026-02-03T11:45:09.934Z
+
+## Method
+- Static import/export graph from local files only
+- Next.js route files in `app/` are treated as used
+- `@/` paths resolved to project root
+- Files referenced in `package.json` scripts are treated as used
+- Namespace imports (`import * as X`) are treated as using all exports
+
+## Unreferenced Files (Likely Orphans)
+- `app/(app)/jobs/improved-page.tsx`
+- `app/(app)/show-toast-button.tsx`
+- `app/(app)/tools/automation/enhanced-page.tsx`
+- `app/(marketing)/components/landing/webgl-gradient.tsx`
+- `app/unauthorized.tsx`
+- `components/analytics/application-outcome-tracker.tsx`
+- `components/analytics/ats-score-trending.tsx`
+- `components/analytics/keyword-effectiveness.tsx`
+- `components/analytics/outcome-categorization.tsx`
+- `components/analytics/resume-performance-overview.tsx`
+- `components/analytics/resume-success-correlation.tsx`
+- `components/analytics/resume-version-comparison.tsx`
+- `components/app-sidebar.tsx`
+- `components/automation/enhanced-analytics-dashboard.tsx`
+- `components/data/report-column-header.tsx`
+- `components/dev/dev-panel.tsx`
+- `components/dynamic-breadcrumb.tsx`
+- `components/errors/error-boundary.tsx`
+- `components/job-leads/job-lead-status-menu.tsx`
+- `components/job-listings/job-listings-filters-wrapper.tsx`
+- `components/job-listings/job-listings-report-old.tsx`
+- `components/job-search/job-search-form-enhanced.tsx`
+- `components/job-search/job-search-progress-indicator.tsx`
+- `components/job-search/job-search-progress-wrapper.tsx`
+- `components/job-search/saved-searches-dropdown.tsx`
+- `components/job-tools/linkedin-tools.tsx`
+- `components/layout/grid.tsx`
+- `components/linkedin/certification-showcase.tsx`
+- `components/linkedin/learning-analytics-dashboard.tsx`
+- `components/linkedin/learning-reminders-widget.tsx`
+- `components/linkedin/linkedin-navigation.tsx`
+- `components/linkedin/skill-gap-learning-integration.tsx`
+- `components/mobile/mobile-navigation.tsx`
+- `components/mobile/responsive-layout.tsx`
+- `components/navigation/app-navbar.tsx`
+- `components/navigation/app-sidebar.tsx`
+- `components/navigation/command-menu.tsx`
+- `components/navigation/skip-link.tsx`
+- `components/network/connection-status.tsx`
+- `components/networking/suggested-contacts.tsx`
+- `components/notifications/notification-center.tsx`
+- `components/onboarding/debug-panel.tsx`
+- `components/onboarding/feature-tips.tsx`
+- `components/onboarding/feature-tooltip.tsx`
+- `components/onboarding/help-button.tsx`
+- `components/providers/i18n-provider.tsx`
+- `components/resumes/resume-analysis-queue.tsx`
+- `components/resumes/resume-revision-toggle.tsx`
+- `components/resumes/resume-revisions-report.tsx`
+- `components/resumes/set-default-resume-button.tsx`
+- `components/resumes/set-default-resume-revision-button.tsx`
+- `components/ui/accessible-dialog.tsx`
+- `components/ui/accessible-icon.tsx`
+- `components/ui/data-table-pagination.tsx`
+- `components/ui/glass-edge.tsx`
+- `components/ui/language-selector.tsx`
+- `components/ui/navigation-link.tsx`
+- `components/ui/responsive-table.tsx`
+- `components/ui/sparkles-core.tsx`
+- `components/ui/svg-icon.tsx`
+- `constants/cache/index.ts`
+- `constants/resumes/index.ts`
+- `hooks/use-channel.ts`
+- `hooks/use-config.ts`
+- `hooks/use-page-analytics.ts`
+- `lib/a11y/keyboard-test-utils.ts`
+- `lib/ai/batch.ts`
+- `lib/applications/outcomes/analytics.ts`
+- `lib/applications/outcomes/tracking.ts`
+- `lib/applications/services/linkedin-api.ts`
+- `lib/automation/job-filter.ts`
+- `lib/automation/scheduler-worker.ts`
+- `lib/cache/index.ts`
+- `lib/db/index.ts`
+- `lib/dev/index.ts`
+- `lib/files/index.ts`
+- `lib/interviews/index.ts`
+- `lib/job-listings/count.ts`
+- `lib/job-listings/create.ts`
+- `lib/job-searches/count.ts`
+- `lib/job-searches/delete.ts`
+- `lib/job-searches/services/career-builder.ts`
+- `lib/job-searches/services/index.ts`
+- `lib/job-searches/services/linkedin-api.ts`
+- `lib/job-searches/services/universal-scraper.ts`
+- `lib/leads/analytics.ts`
+- `lib/leads/compliance.ts`
+- `lib/leads/data-quality.ts`
+- `lib/leads/enrichment-worker.ts`
+- `lib/leads/scoring-system.ts`
+- `lib/linkedin/connection-analytics.ts`
+- `lib/linkedin/connection-paths.ts`
+- `lib/linkedin/follow-up-automation.ts`
+- `lib/linkedin/learning-paths.ts`
+- `lib/linkedin/learning-progress.ts`
+- `lib/linkedin/learning-recommendations.ts`
+- `lib/linkedin/learning-reminders.ts`
+- `lib/linkedin/network-gaps.ts`
+- `lib/linkedin/network-growth.ts`
+- `lib/linkedin/safety-controls.ts`
+- `lib/linkedin/utils.ts`
+- `lib/rate-limit/examples.ts`
+- `lib/resumes/performance-analytics.ts`
+- `lib/time/timezone.server.ts`
+- `playwright.config.ts`
+- `scrapers/job-scraper-engine.ts`
+- `scripts/test-serpapi.ts`
+- `scripts/validate-table-alignment.ts`
+- `types/api/serp-api.d.ts`
+- `types/domain/index.ts`
+- `types/domain/job-lead/index.ts`
+- `types/domain/job-listing/index.ts`
+- `types/domain/resume/analysis.d.ts`
+- `types/domain/resume/optimization.d.ts`
+- `types/domain/resume/resume.d.ts`
+- `types/domain/resume/revision.d.ts`
+- `types/domain/user/job-preferences.d.ts`
+- `types/domain/user/profile.d.ts`
+- `types/interviewer-research.d.ts`
+- `types/job-lead/index.ts`
+- `types/pdf-parse.d.ts`
+- `types/pusher.d.ts`
+- `types/reporting/query.d.ts`
+- `types/resumes/resume.ts`
+- `types/resumes/revision.ts`
+
+## Unused Exports (Likely Dead Symbols)
+- `app/(app)/jobs/improved-page.tsx`: metadata, default
+- `app/(app)/tools/automation/enhanced-page.tsx`: default
+- `app/(marketing)/components/landing/hero-interactive-background.tsx`: HeroInteractiveBackgroundProps
+- `app/(marketing)/components/landing/webgl-gradient.tsx`: WebGLGradient
+- `components/analytics/application-outcome-tracker.tsx`: ApplicationOutcomeTracker
+- `components/analytics/ats-score-trending.tsx`: ATSScoreTrending
+- `components/analytics/charts.tsx`: STATUS_COLORS, BarChartCard, PieChartCard
+- `components/analytics/keyword-effectiveness.tsx`: KeywordEffectiveness
+- `components/analytics/outcome-categorization.tsx`: OutcomeCategorization
+- `components/analytics/resume-performance-overview.tsx`: ResumePerformanceOverview
+- `components/analytics/resume-success-correlation.tsx`: ResumeSuccessCorrelation
+- `components/analytics/resume-version-comparison.tsx`: ResumeVersionComparison
+- `components/app-sidebar.tsx`: AppSidebar
+- `components/automation/enhanced-analytics-dashboard.tsx`: EnhancedAnalyticsDashboard
+- `components/charts/interactive/accessible.tsx`: ACCESSIBLE_COLOR_SCHEMES, PatternDefs, DataSonification, generateChartDescription
+- `components/charts/interactive/index.tsx`: ChartSkeleton, ChartError
+- `components/charts/interactive/realtime.tsx`: StreamChart
+- `components/charts/interactive/responsive.tsx`: ResponsiveChartContainer, ResponsiveMetrics
+- `components/data/date-label.tsx`: DateLabelProps
+- `components/data/metadata-list.tsx`: MetadataProps, MetadataLabelProps, MetadataList
+- `components/data/report-column-header.tsx`: ReportColumnHeader
+- `components/data/report.tsx`: ReportProps
+- `components/dev/dev-panel.tsx`: DevPanel
+- `components/dynamic-breadcrumb.tsx`: breadcrumbMapping, DynamicBreadcrumb
+- `components/errors/error-boundary.tsx`: ErrorBoundary, useErrorHandler, ErrorFallback
+- `components/exports/report-builder.tsx`: ExportFormat, DataType
+- `components/guided-application/index.ts`: ApplyOptionLink, FieldSuggestionCard, RankedApplyOptions, StartGuidedApplicationDialog
+- `components/guided-application/ranked-apply-options.tsx`: RankedApplyOptions
+- `components/guided-application/start-guided-application-dialog.tsx`: StartGuidedApplicationDialog
+- `components/interviewer-research/research-progress.tsx`: ResearchStep
+- `components/job-leads/job-lead-progress-tracker.tsx`: JobLeadProgressTrackerProps
+- `components/job-leads/job-lead-progress.tsx`: JobLeadProgressProps
+- `components/job-leads/job-lead-status-menu.tsx`: JobLeadStatusMenuProps, JobLeadStatusMenu
+- `components/job-leads/job-leads-report.tsx`: DateLabel
+- `components/job-listings/job-badges.tsx`: WorkFromHomeBadge, JobBoardBadge
+- `components/job-listings/job-listings-filters-wrapper.tsx`: JobListingsFiltersWrapper
+- `components/job-listings/job-listings-report-old.tsx`: JobListingsReport
+- `components/job-listings/job-listings-report.tsx`: DateLabel
+- `components/job-search/job-search-client.tsx`: JobSearchFormData
+- `components/job-search/job-search-filters.tsx`: JobSearchFiltersData
+- `components/job-search/job-search-form-enhanced.tsx`: JobSearchFormEnhanced
+- `components/job-search/job-search-progress-indicator.tsx`: JobSearchProgressIndicator
+- `components/job-search/job-search-progress-wrapper.tsx`: JobSearchProgressWrapper
+- `components/job-search/saved-searches-dropdown.tsx`: SavedSearchesDropdown
+- `components/job-searches/job-search-queue.tsx`: JobSearchQueueProps
+- `components/job-tools/linkedin-tools.tsx`: LinkedInTools
+- `components/layout/grid.tsx`: GridItemProps, GridProps
+- `components/layout/page-back-button.tsx`: PageBackButtonProps
+- `components/layout/page.tsx`: PageProps, PageHeaderProps, PageSummaryProps, PageTitleProps, PageDescriptionProps, PageMetadataProps, PageContentProps, PageActionsProps, PageBackButtonProps, PageBackButton
+- `components/layout/responsive.tsx`: ResponsiveProps
+- `components/linkedin/certification-showcase.tsx`: CertificationShowcase
+- `components/linkedin/learning-analytics-dashboard.tsx`: LearningAnalyticsDashboard
+- `components/linkedin/learning-reminders-widget.tsx`: LearningRemindersWidget
+- `components/linkedin/linkedin-navigation.tsx`: LinkedInNavigation
+- `components/linkedin/skill-gap-learning-integration.tsx`: SkillGapLearningIntegration
+- `components/mobile/mobile-navigation.tsx`: MobileNavigation
+- `components/mobile/responsive-layout.tsx`: ResponsiveLayout
+- `components/navigation/app-navbar.tsx`: AppNavbar
+- `components/navigation/app-sidebar.tsx`: AppSidebar
+- `components/navigation/command-menu.tsx`: CommandMenu
+- `components/navigation/skip-link.tsx`: SkipLink
+- `components/network/connection-status.tsx`: ConnectionStatus
+- `components/networking/suggested-contacts.tsx`: SuggestedContacts
+- `components/notifications/notification-center.tsx`: NotificationCenter
+- `components/onboarding/debug-panel.tsx`: OnboardingDebugPanel
+- `components/onboarding/feature-tips.tsx`: JobSearchTip, ResumeTip, ApplicationTip, AnalyticsTip, NetworkingTip, InterviewTip, SkillGapTip, DashboardTip
+- `components/onboarding/feature-tooltip.tsx`: FeatureTooltip
+- `components/onboarding/help-button.tsx`: HelpButton
+- `components/people-profiles/people-profiles-report.tsx`: DateLabel, PeopleProfilesReportProps
+- `components/providers/i18n-provider.tsx`: I18nProvider
+- `components/providers/pusher-provider.tsx`: CorePusherProvider
+- `components/resumes/resume-analysis-queue.tsx`: ResumeQueueProps, ResumeAnalysisQueue
+- `components/resumes/resume-optimization-queue.tsx`: ResumeOptimizationQueueProps
+- `components/resumes/resume-revision-toggle.tsx`: ResumeRevisionToggleProps, ResumeRevisionToggle
+- `components/resumes/resume-revisions-report.tsx`: ResumeRevisionsReport
+- `components/resumes/resumes-report.tsx`: DateLabel
+- `components/resumes/set-default-resume-button.tsx`: SetDefaultResumeButton
+- `components/resumes/set-default-resume-revision-button.tsx`: SetDefaultResumeRevisionButton
+- `components/ui/accessible-dialog.tsx`: AccessibleDialog, AccessibleDialogClose, AccessibleDialogContent, AccessibleDialogDescription, AccessibleDialogFooter, AccessibleDialogHeader, AccessibleDialogOverlay, AccessibleDialogPortal, AccessibleDialogTitle, AccessibleDialogTrigger
+- `components/ui/alert-dialog.tsx`: AlertDialogOverlay, AlertDialogPortal
+- `components/ui/badge.tsx`: BadgeProps, badgeVariants
+- `components/ui/breadcrumb.tsx`: BreadcrumbPage
+- `components/ui/calendar.tsx`: CalendarDayButton
+- `components/ui/checkbox.tsx`: default
+- `components/ui/command.tsx`: CommandSeparator, CommandShortcut
+- `components/ui/data-table-pagination.tsx`: DataTablePagination
+- `components/ui/data-table.tsx`: DataTableProps
+- `components/ui/date-picker.tsx`: DatePicker
+- `components/ui/dialog.tsx`: DialogClose, DialogOverlay, DialogPortal
+- `components/ui/drawer.tsx`: DrawerPortal
+- `components/ui/dropdown-menu.tsx`: DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem
+- `components/ui/file-upload-input.tsx`: InputProps
+- `components/ui/form.tsx`: useFormField
+- `components/ui/glass-edge.tsx`: GlassEdge
+- `components/ui/glass.tsx`: glassVariants, edgeLineVariants, glowVariants, type GlassProps
+- `components/ui/input.tsx`: inputVariants, type InputSize
+- `components/ui/language-selector.tsx`: LanguageSelector
+- `components/ui/modal.tsx`: ModalContentProps, ModalHeaderProps, ModalClose, ModalOverlay, ModalPortal, modalVariants
+- `components/ui/navigation-link.tsx`: NavigationLink
+- `components/ui/navigation-menu.tsx`: NavigationMenuIndicator, NavigationMenuViewport
+- `components/ui/responsive-dialog/responsive-dialog.tsx`: ResponsiveDialog, ResponsiveDialogClose, ResponsiveDialogContainer, ResponsiveDialogContent, ResponsiveDialogDescription, ResponsiveDialogFooter, ResponsiveDialogHeader, ResponsiveDialogTitle, ResponsiveDialogTrigger
+- `components/ui/responsive-table.tsx`: ResponsiveTable
+- `components/ui/scroll-area.tsx`: ScrollBar
+- `components/ui/select.tsx`: SelectGroup, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator
+- `components/ui/sheet.tsx`: SheetClose, SheetFooter
+- `components/ui/shimmer-card.tsx`: ShimmerCardDescription, ShimmerCardFooter, ShimmerCardHeader, ShimmerCardTitle
+- `components/ui/sidebar.tsx`: SidebarGroupAction, SidebarInput, SidebarInset, SidebarMenuBadge, SidebarMenuSkeleton, SidebarProvider, SidebarRail, SidebarSeparator, SidebarTrigger
+- `components/ui/slide-panel.tsx`: SlidePanelPortal
+- `components/ui/sparkles-core.tsx`: SparklesCore
+- `components/ui/svg-icon.tsx`: SvgIcon
+- `components/ui/table.tsx`: TableCaption
+- `components/ui/toast.tsx`: type ToastActionElement, type ToastProps
+- `components/ui/use-toast.ts`: Toast
+- `components/user/job-preferences-form.tsx`: jobPreferencesFormSchema
+- `components/user/user-details-form.tsx`: userDetailsFormSchema
+- `constants/cache/tags.ts`: CACHE_TAGS
+- `hooks/use-channel.ts`: useChannel
+- `hooks/use-config.ts`: useConfig
+- `hooks/use-page-analytics.ts`: usePageAnalytics
+- `hooks/use-pusher.ts`: NOT_IN_CONTEXT_WARNING
+- `hooks/use-toast.ts`: reducer
+- `lib/a11y/form-utils.ts`: FormErrorEntry, flattenFormErrors, findFirstErrorPath
+- `lib/a11y/keyboard-test-utils.ts`: FocusableElement, getFocusableElements, testTabOrder, simulateKeyboardNavigation, testFocusTrap, hasVisibleFocus, generateKeyboardAccessibilityReport
+- `lib/a11y/test-mode.ts`: A11yJobSearch
+- `lib/ai/batch.ts`: aiCache
+- `lib/ai/index.ts`: ai, commonSchemas
+- `lib/ai/openai.ts`: default
+- `lib/ai/retry.ts`: fallbackResponses, commonSchemas
+- `lib/analytics/index.ts`: AnalyticsPeriod, ApplicationsOverviewData, ResponseRateData, TimeToResponseData, JobBoardPerformanceData, ResumePerformanceData
+- `lib/analytics/job-search-effectiveness.ts`: SearchStrategyMetrics, ApplicationTimingMetrics, PlatformROIMetrics, KeywordPerformanceMetrics, EffectivenessSummary
+- `lib/api/linkedin-jobs.ts`: LinkedInJobSearchParams
+- `lib/applications/logging.ts`: ApplicationEvent
+- `lib/applications/outcomes/analytics.ts`: ApplicationMetrics, ConversionFunnel, StatusDistribution, TimelineTrend, BenchmarkData, ApplicationAnalytics
+- `lib/applications/outcomes/tracking.ts`: ResponseTimeMetrics, ResponseTimeTracker, responseTimeTracker
+- `lib/applications/services/company-direct.ts`: CompanyDirectSubmissionService
+- `lib/applications/services/field-mapping.ts`: FieldDefinition, PlatformFieldMapping, PLATFORM_FIELD_MAPPINGS, FieldMappingService
+- `lib/applications/services/platform-detection.ts`: PlatformPattern, PlatformDetectionService
+- `lib/applications/services/unified-application.ts`: UnifiedApplicationParams, UnifiedApplicationResult, ApplicationEligibilityCheck, UnifiedApplicationService
+- `lib/applications/submit.ts`: ApplicationSubmissionOptions, ApplicationSubmissionResult
+- `lib/auth/server.ts`: config
+- `lib/automation/analytics-enhanced.ts`: EnhancedAutomationMetrics, EnhancedPlatformMetrics, PlatformComparisonMetrics, TimingEffectivenessMetrics, OptimalTimingAnalysis, EnhancedROIMetrics, CostSavingsMetrics, PerformanceMetrics, SuccessFactorAnalysis, EnhancedRecentActivity, EnhancedAutomationAlert, AnomalyDetection, SchedulingMetrics, EnhancedAutomationAnalytics
+- `lib/automation/analytics.ts`: AutomationMetrics, PlatformMetrics, TimeMetrics, ROIMetrics, RecentActivity, AutomationAlert, AutomationAnalytics
+- `lib/automation/error-handler.ts`: ErrorCategory, ErrorSeverity, RetryStrategy, ErrorResolution, ErrorLog, AutomationErrorHandler
+- `lib/automation/export-analytics.ts`: ExportFormat, ExportOptions, AnalyticsExporter
+- `lib/automation/job-filter.ts`: JobAutomationFilter
+- `lib/automation/multi-platform-manager.ts`: PlatformConfig, ApplicationResult, PlatformSubmissionService, MultiPlatformManager
+- `lib/automation/safety-validator.ts`: SafetyValidationResult, JobLead, AutomationSettings
+- `lib/cache/index.ts`: cacheTag, revalidateTag, revalidateAllCacheData, cacheLife
+- `lib/cache/job-search-cache.ts`: CachedJobSearch
+- `lib/cache/kv-config.ts`: KVClient, isKVAvailable
+- `lib/charts/theme.ts`: lineStyle, cellStyle, polarGridStyle, getChartProps
+- `lib/db/index.ts`: db
+- `lib/email/index.ts`: EmailAttachment, EmailOptions
+- `lib/errors/api.ts`: ApiErrorResponse, handleApiError, requirePermission
+- `lib/errors/index.ts`: AppErrorDetails, createValidationError, createDatabaseError
+- `lib/exports/data-exporter.ts`: ExportFormat, DataType, ExportOptions, ExportableData, DataExporter
+- `lib/exports/scheduled-reports.ts`: ScheduleFrequency, ScheduledReportConfig, buffer
+- `lib/exports/shareable-dashboards.ts`: ShareableLink, ShareableDashboardData, isLinkExpired, formatExpirationDate
+- `lib/guided-applications/index.ts`: analyzeFormWithAI, generateFieldSuggestionWithAI, detectATSFromUrl, getATSKnowledge, getBestApplyOption, type ApplyOption, type SiteRankingResult, getUserDataForSuggestions, matchFieldToUserData
+- `lib/guided-applications/site-ranking.ts`: ApplyOption, RankedApplyOption, SiteRankingResult
+- `lib/interviews/types.ts`: InterviewSession, InterviewSimulationOptions, InterviewSimulation
+- `lib/job-leads/analyze/job-fit.ts`: JobFitAnalysisResult
+- `lib/job-searches/services/career-builder.ts`: dynamic
+- `lib/leads/analytics.ts`: LeadMetrics, LeadPipelineAnalytics, DataQualityAnalytics, SourcePerformanceAnalytics, ActivityAnalytics, IndustryInsights
+- `lib/leads/compliance.ts`: ConsentRecord, DataRetentionPolicy, DataDeletionRequest, DataAttributionInfo
+- `lib/leads/data-quality.ts`: ValidationRule, ValidationResult, DataQualityReport, DeduplicationResult
+- `lib/leads/enrichment-pipeline.ts`: EnrichmentRequest, EnrichmentResult, SearchRequest, SearchResult
+- `lib/leads/scoring-system.ts`: ScoringCriteria, ScoringResult, QualificationRule
+- `lib/linkedin/company-research.ts`: CompanyLocation, CompanyStatistics, CompanyUpdate, CompanyPerson, CompanyFinancials, CompanyCulture, JobOpening, NetworkConnection, CompanyResearchOptions
+- `lib/linkedin/connection-analytics.ts`: ConnectionAnalytics, ConnectionInsights
+- `lib/linkedin/connection-automation.ts`: ConnectionTarget, ConnectionRequest, ConnectionStats
+- `lib/linkedin/connection-paths.ts`: ConnectionPath, PathRoute, PathStep, TargetProfile
+- `lib/linkedin/follow-up-automation.ts`: FollowUpRequest, FollowUpSchedule
+- `lib/linkedin/learning-paths.ts`: LearningPathStep, LearningPath, LearningPathGenerationOptions
+- `lib/linkedin/learning-progress.ts`: LearningProgress, LearningSession, LearningGoal
+- `lib/linkedin/learning-recommendations.ts`: CourseRecommendation, LinkedInLearningCourse
+- `lib/linkedin/learning-reminders.ts`: LearningReminder, ReminderNotification
+- `lib/linkedin/network-analysis.ts`: NetworkMetrics, RelationshipStrength
+- `lib/linkedin/network-gaps.ts`: NetworkGap, SuggestedConnection, CareerGoal
+- `lib/linkedin/network-growth.ts`: NetworkGrowthMetrics, ConnectionQualityMetrics, NetworkHealthScore, GrowthTrend
+- `lib/linkedin/safety-controls.ts`: SafetyMetrics, SafetyLimits, DEFAULT_SAFETY_LIMITS
+- `lib/linkedin/utils.ts`: formatDayOfWeek, formatTime
+- `lib/networking/types.ts`: ContactInteraction, NetworkingStats
+- `lib/notifications/templates/application-status.tsx`: ApplicationStatusEmail
+- `lib/notifications/templates/interview-request.tsx`: InterviewRequestEmail
+- `lib/notifications/types.ts`: NotificationAction, NotificationMetadataMap, NotificationMetadata, NotificationDraft, NotificationContext, NotificationBuilder
+- `lib/portfolio/documentation-assistant.ts`: ProjectDocumentationAssistant
+- `lib/portfolio/github-integration.ts`: GitHubPortfolioIntegration
+- `lib/portfolio/portfolio-analytics.ts`: PortfolioAnalytics
+- `lib/portfolio/portfolio-generator.ts`: PortfolioGenerator
+- `lib/portfolio/template-system.ts`: PortfolioTemplateSystem
+- `lib/portfolio/visual-enhancement.ts`: VisualContentEnhancer
+- `lib/rate-limit/index.ts`: RateLimitResult
+- `lib/rate-limit/kv.ts`: RateLimitStorage, memoryStorage, kvStorage
+- `lib/rate-limit/middleware.ts`: RateLimitMiddlewareConfig, addRateLimitHeaders
+- `lib/rate-limit/server-actions.ts`: ServerActionRateLimitConfig, createResume
+- `lib/resumes/keyword-analysis.ts`: KeywordMetric, KeywordAnalysisOptions
+- `lib/resumes/performance-analytics.ts`: ResumeKeywordAnalysis, ResumeSectionAnalysis, OptimizationImpact, ResumeCorrelationAnalysis
+- `lib/resumes/performance.ts`: ResumePerformanceMetrics, ResumePerformanceOptions, ATSScoreTrend, ResumeComparison
+- `lib/skills/gap-analysis.ts`: SkillGapAnalysis, SkillGapAnalysisOptions
+- `lib/user/index.ts`: getDatabaseUser, getSessionUser, getUserJobPreferences, updateUserJobPreferences, getUserProfile, updateUserProfile, getUserDefaultResumeId
+- `lib/utils.ts`: truncateString, generateId
+- `scrapers/job-scraper-engine.ts`: JobScraperEngine
+- `scrapers/job-scraper.ts`: JobScraper
+- `scrapers/scraped-job.ts`: ScrapedJob
+- `scrapers/scraper-run-context.ts`: ScraperRunContext
+- `types/domain/job-lead/events.ts`: JobLeadAnalysisProgressPayload
+- `types/domain/job-lead/index.ts`: WithJobLead
+- `types/domain/job-listing/index.ts`: WithJobListing
+- `types/job-lead/event.ts`: JobLeadOptimizationProgressPayload
+- `types/resumes/revision.ts`: ResumeRevision
+
+## Notes
+- This is best-effort static analysis. Dynamic imports, runtime usage, and framework conventions can hide real usage.
+- If any item is actually used at runtime, add explicit imports or document the usage to avoid false positives.

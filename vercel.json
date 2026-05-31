@@ -1,0 +1,28 @@
+{
+  "crons": [
+    {
+      "path": "/api/notifications/digests/daily",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/notifications/digests/weekly",
+      "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/canary",
+      "schedule": "0 10 * * 1"
+    },
+    {
+      "path": "/api/admin/scrape/cron?provider=fantastic",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/admin/scrape/cron?provider=serpapi",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/admin/scrape/cron?provider=daily-expanded",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}

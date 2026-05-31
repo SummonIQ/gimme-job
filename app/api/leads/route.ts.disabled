@@ -1,0 +1,194 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { getLeadScoringRecommendations, calculateLeadScore, updateLeadScoring } from '@/lib/leads/scoring-system';
+import { LeadStatus } from '@prisma/client';
+import { z } from 'zod';
+
+const updateLeadSchema = z.object({
+  status: z.enum(['NEW', 'CONTACTED', 'QUALIFIED', 'PROPOSAL_SENT', 'NEGOTIATING', 'WON', 'LOST', 'NURTURING', 'DISQUALIFIED']).optional(),
+  qualificationNotes: z.string().optional(),
+  assignedToUserId: z.string().optional(),
+});
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status') as LeadStatus | null;
+    const assignedTo = searchParams.get('assignedTo');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '25', 10);
+    const search = searchParams.get('search');
+    const sortBy = searchParams.get('sortBy') || 'leadScore';
+    const sortOrder = searchParams.get('sortOrder') || 'desc';
+
+    const { db } = await import('@/lib/db/client');
+
+    // Build where clause
+    const where: any = {
+      assignedToUserId: assignedTo || user.id,
+    };
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { jobTitle: { contains: search, mode: 'insensitive' } },
+        { company: { name: { contains: search, mode: 'insensitive' } } },
+      ];
+    }
+
+    // Build orderBy clause
+    const orderBy: any = {};
+    if (sortBy === 'leadScore') {
+      orderBy.leadScore = sortOrder;
+    } else if (sortBy === 'company') {
+      orderBy.company = { name: sortOrder };
+    } else if (sortBy === 'lastEnriched') {
+      orderBy.lastEnrichedAt = sortOrder;
+    } else {
+      orderBy[sortBy] = sortOrder;
+    }
+
+    const [leads, totalCount] = await Promise.all([
+      db.enrichedLead.findMany({
+        where,
+        include: {
+          company: true,
+          activities: {
+            orderBy: { createdAt: 'desc' },
+            take: 3, // Latest 3 activities
+          },
+        },
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      db.enrichedLead.count({ where }),
+    ]);
+
+    const leadsWithDetails = leads.map(lead => ({
+      id: lead.id,
+      firstName: lead.firstName,
+      lastName: lead.lastName,
+      fullName: lead.fullName,
+      email: lead.email,
+      phone: lead.phone,
+      linkedinUrl: lead.linkedinUrl,
+      jobTitle: lead.jobTitle,
+      department: lead.department,
+      seniority: lead.seniority,
+      status: lead.status,
+      leadScore: lead.leadScore,
+      dataQuality: lead.dataQuality,
+      dataProvider: lead.dataProvider,
+      qualificationNotes: lead.qualificationNotes,
+      lastEnrichedAt: lead.lastEnrichedAt,
+      createdAt: lead.createdAt,
+      updatedAt: lead.updatedAt,
+      company: lead.company ? {
+        id: lead.company.id,
+        name: lead.company.name,
+        domain: lead.company.domain,
+        website: lead.company.website,
+        industry: lead.company.industry,
+        companySize: lead.company.companySize,
+        employeeCount: lead.company.employeeCount,
+        headquarters: lead.company.headquarters,
+        technologies: lead.company.technologies,
+        intentSignals: lead.company.intentSignals,
+        intentScore: lead.company.intentScore,
+      } : null,
+      recentActivities: lead.activities.map(activity => ({
+        id: activity.id,
+        type: activity.type,
+        description: activity.description,
+        createdAt: activity.createdAt,
+      })),
+    }));
+
+    return NextResponse.json({
+      success: true,
+      leads: leadsWithDetails,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
+    });
+  } catch (error) {
+    console.error('Failed to get leads:', error);
+    return NextResponse.json(
+      { error: 'Failed to get leads' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const action = searchParams.get('action');
+
+    if (action === 'recommendations') {
+      // Get lead scoring recommendations
+      const recommendations = await getLeadScoringRecommendations(user.id);
+
+      return NextResponse.json({
+        success: true,
+        recommendations,
+      });
+    } else if (action === 'score') {
+      // Score specific leads
+      const body = await request.json();
+      const { leadIds } = body;
+
+      if (!leadIds || !Array.isArray(leadIds)) {
+        return NextResponse.json(
+          { error: 'leadIds array is required' },
+          { status: 400 }
+        );
+      }
+
+      const results = [];
+      for (const leadId of leadIds) {
+        try {
+          const scoringResult = await calculateLeadScore(leadId);
+          await updateLeadScoring(scoringResult);
+          results.push(scoringResult);
+        } catch (error) {
+          console.error(`Failed to score lead ${leadId}:`, error);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Scored ${results.length} leads`,
+        results,
+      });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  } catch (error) {
+    console.error('Lead operation failed:', error);
+    return NextResponse.json(
+      { error: 'Failed to perform lead operation' },
+      { status: 500 }
+    );
+  }
+}

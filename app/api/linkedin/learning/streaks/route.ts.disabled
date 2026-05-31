@@ -1,0 +1,15 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getLearningStreaks } from '@/lib/linkedin/learning-progress';
+
+export async function GET(request: NextRequest) {
+  try {
+    const streaks = await getLearningStreaks();
+    return NextResponse.json(streaks);
+  } catch (error) {
+    console.error('Error fetching learning streaks:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch learning streaks' },
+      { status: 500 }
+    );
+  }
+}

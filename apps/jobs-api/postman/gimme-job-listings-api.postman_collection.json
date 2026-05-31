@@ -1,0 +1,500 @@
+{
+  "info": {
+    "_postman_id": "0d02d6bd-fb86-4aa4-a912-7f9e3d3aa3fd",
+    "name": "Gimme Job Listings API",
+    "description": "RapidAPI-ready collection for Gimme Job Listings API. Import either this collection or /openapi.json, not both. Customer-facing endpoints are under /v1 only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://gimme-job-listings-api-production.up.railway.app"
+    },
+    {
+      "key": "rapidapiProxySecret",
+      "value": ""
+    },
+    {
+      "key": "rapidapiSubscription",
+      "value": "pro"
+    },
+    {
+      "key": "jobId",
+      "value": "2124989858"
+    }
+  ],
+  "item": [
+    {
+      "name": "Dataset Stats",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/stats",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "stats"
+          ]
+        },
+        "description": "Dataset volume and freshness, including active count, expired count, latest posted time, latest updated time, and provider count."
+      }
+    },
+    {
+      "name": "List Active Jobs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs?limit=10&query=software&location=United+States&remote=true&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "10"
+            },
+            {
+              "key": "query",
+              "value": "software"
+            },
+            {
+              "key": "location",
+              "value": "United States"
+            },
+            {
+              "key": "remote",
+              "value": "true"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active public jobs ordered by newest posted/created time. Supports text, title, company, location, remote, provider, job_type, salary, date, cursor, and offset filters."
+      }
+    },
+    {
+      "name": "Backfill Jobs (6 Months)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/backfill?limit=100&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "backfill"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active jobs from the last 6 months by posted/created time. Use for initial database population and gap filling."
+      }
+    },
+    {
+      "name": "Posted Jobs (7 Days)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/posted-7d?limit=100&remote=true&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "posted-7d"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "remote",
+              "value": "true"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active jobs posted during the last 7 days. Use for recent jobs pages and weekly ingestion."
+      }
+    },
+    {
+      "name": "Indexed Jobs (24 Hours)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/indexed-24h?limit=100&has_salary=true&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "indexed-24h"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "has_salary",
+              "value": "true"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active jobs discovered/indexed by Gimme Job during the last 24 hours. These can include jobs whose source posted date is older."
+      }
+    },
+    {
+      "name": "Hourly Jobs Feed",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/hourly?limit=100&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "hourly"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active jobs discovered/indexed during the last hour. Use for frequent ingestion jobs."
+      }
+    },
+    {
+      "name": "Modified Jobs (24 Hours)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/modified-24h?limit=100&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "modified-24h"
+          ],
+          "query": [
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Active jobs modified during the last 24 hours, ordered by updatedAt ascending."
+      }
+    },
+    {
+      "name": "Updated Jobs Feed",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/updated?updated_after=2026-01-01T00%3A00%3A00.000Z&limit=100&include_description=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "updated"
+          ],
+          "query": [
+            {
+              "key": "updated_after",
+              "value": "2026-01-01T00:00:00.000Z"
+            },
+            {
+              "key": "limit",
+              "value": "100"
+            },
+            {
+              "key": "include_description",
+              "value": "false"
+            }
+          ]
+        },
+        "description": "Incremental sync feed ordered by updatedAt ascending. Use cursor pagination and upsert returned jobs by id."
+      }
+    },
+    {
+      "name": "Expired Job IDs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/expired?updated_after=2026-01-01T00%3A00%3A00.000Z&limit=100",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "expired"
+          ],
+          "query": [
+            {
+              "key": "updated_after",
+              "value": "2026-01-01T00:00:00.000Z"
+            },
+            {
+              "key": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "description": "Expired/dismissed job IDs ordered by updatedAt ascending. Use to delete or mark stale jobs in your database."
+      }
+    },
+    {
+      "name": "Provider Counts",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/providers",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "providers"
+          ]
+        },
+        "description": "Active public job counts grouped by provider. Use provider values as filters on listing and sync endpoints."
+      }
+    },
+    {
+      "name": "Facets",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/facets",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "facets"
+          ]
+        },
+        "description": "Top provider, location, remote, and job type facets for filter UIs and analytics."
+      }
+    },
+    {
+      "name": "Get Job By ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-RapidAPI-Proxy-Secret",
+            "value": "{{rapidapiProxySecret}}",
+            "type": "text"
+          },
+          {
+            "key": "X-RapidAPI-Subscription",
+            "value": "{{rapidapiSubscription}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/v1/jobs/{{jobId}}?include_description=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "jobs",
+            "{{jobId}}"
+          ],
+          "query": [
+            {
+              "key": "include_description",
+              "value": "true"
+            }
+          ]
+        },
+        "description": "Fetch one active job by internal id or provider jobId."
+      }
+    }
+  ]
+}

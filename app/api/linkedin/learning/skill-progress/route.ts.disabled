@@ -1,0 +1,77 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { db } from '@/lib/db/client';
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get all completed enrollments with courses
+    const enrollments = await db.linkedInLearningEnrollment.findMany({
+      where: {
+        userId: user.id,
+        status: 'completed',
+      },
+      include: {
+        course: true,
+      },
+    });
+
+    // Aggregate skill progress data
+    const skillMap = new Map<string, {
+      coursesCompleted: number;
+      timeSpent: number;
+      lastUpdated: Date;
+    }>();
+
+    enrollments.forEach(enrollment => {
+      const skills = enrollment.course?.skills || [];
+      const completionDate = enrollment.completionDate || enrollment.updatedAt;
+      
+      skills.forEach(skill => {
+        const existing = skillMap.get(skill) || {
+          coursesCompleted: 0,
+          timeSpent: 0,
+          lastUpdated: new Date(0),
+        };
+
+        skillMap.set(skill, {
+          coursesCompleted: existing.coursesCompleted + 1,
+          timeSpent: existing.timeSpent + enrollment.timeSpent,
+          lastUpdated: completionDate > existing.lastUpdated ? completionDate : existing.lastUpdated,
+        });
+      });
+    });
+
+    // Convert to array and calculate proficiency levels
+    const skillProgress = Array.from(skillMap.entries()).map(([skill, data]) => {
+      // Calculate proficiency level based on courses completed and time spent
+      // More courses + more time = higher proficiency
+      const courseFactor = Math.min(data.coursesCompleted * 20, 60); // Max 60 from courses
+      const timeFactor = Math.min(data.timeSpent / 60, 40); // Max 40 from time (1 hour = 1 point)
+      const proficiencyLevel = Math.round(courseFactor + timeFactor);
+
+      return {
+        skill,
+        coursesCompleted: data.coursesCompleted,
+        timeSpent: data.timeSpent,
+        proficiencyLevel: Math.min(proficiencyLevel, 100),
+        lastUpdated: data.lastUpdated,
+      };
+    });
+
+    // Sort by proficiency level descending
+    skillProgress.sort((a, b) => b.proficiencyLevel - a.proficiencyLevel);
+
+    return NextResponse.json(skillProgress);
+  } catch (error) {
+    console.error('Error fetching skill progress:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch skill progress' },
+      { status: 500 }
+    );
+  }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Software Engineer | SmartRecruiters</title>
+    <meta name="ats-family" content="smartrecruiters" />
+  </head>
+  <body class="sr-apply-page">
+    <div id="sr-app" class="application-form-container">
+      <h1>Software Engineer</h1>
+      <div class="company-name">Fixture Co</div>
+
+      <form
+        id="applicationForm"
+        method="post"
+        action="/fixtures/smartrecruiters/submit"
+        enctype="multipart/form-data"
+      >
+        <section class="sr-section" data-step="personal">
+          <h2>Personal Information</h2>
+
+          <label for="FirstName">First Name *</label>
+          <input type="text" id="FirstName" name="FirstName" required />
+
+          <label for="LastName">Last Name *</label>
+          <input type="text" id="LastName" name="LastName" required />
+
+          <label for="Email">Email Address *</label>
+          <input type="email" id="Email" name="Email" required />
+
+          <label for="Phone">Phone Number</label>
+          <input type="tel" id="Phone" name="Phone" />
+        </section>
+
+        <section class="sr-section" data-step="resume">
+          <h2>Upload Resume</h2>
+          <label for="ResumeFile">Resume *</label>
+          <input
+            type="file"
+            id="ResumeFile"
+            name="ResumeFile"
+            accept=".pdf,.doc,.docx"
+            required
+          />
+        </section>
+
+        <section class="sr-section" data-step="details">
+          <h2>Additional Details</h2>
+
+          <label for="City">City *</label>
+          <input type="text" id="City" name="City" required />
+
+          <label for="Country">Country *</label>
+          <input type="text" id="Country" name="Country" required />
+
+          <label for="CurrentEmployer">Current Employer</label>
+          <input type="text" id="CurrentEmployer" name="CurrentEmployer" />
+        </section>
+
+        <section class="sr-section" data-step="consent">
+          <label>
+            <input
+              type="checkbox"
+              id="PrivacyConsent"
+              name="PrivacyConsent"
+              value="true"
+              required
+            />
+            I consent to the processing of my personal data *
+          </label>
+        </section>
+
+        <button type="submit" id="sr-submit-button" class="sr-primary">
+          Submit application
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

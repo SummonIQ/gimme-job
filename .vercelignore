@@ -1,0 +1,14 @@
+.git
+node_modules
+**/node_modules
+/desktop/
+.next/
+.next-e2e/
+out/
+build/
+coverage/
+*.dmg
+*.app
+.env
+.env.*
+!.env.example

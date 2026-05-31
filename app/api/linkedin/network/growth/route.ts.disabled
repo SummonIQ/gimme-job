@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { trackNetworkGrowth } from "@/lib/linkedin/network-growth";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const growthMetrics = await trackNetworkGrowth();
+    return NextResponse.json(growthMetrics);
+  } catch (error) {
+    console.error("Failed to track network growth:", error);
+    return NextResponse.json(
+      { error: "Failed to track network growth" },
+      { status: 500 }
+    );
+  }
+}

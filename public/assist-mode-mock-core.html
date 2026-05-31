@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assist Mode Mock Core</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; color: #111; }
+      form { max-width: 760px; display: grid; gap: 16px; }
+      .row { display: grid; gap: 6px; }
+      .inline { display: flex; gap: 12px; flex-wrap: wrap; }
+      label { font-size: 14px; font-weight: 600; }
+      input, select, textarea { padding: 8px 10px; font-size: 14px; }
+      fieldset { border: 1px solid #ddd; padding: 10px; }
+      legend { font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <h1>Assist Mode Core Mock</h1>
+    <form>
+      <div class="row">
+        <label for="phone">Phone *</label>
+        <input id="phone" name="phone" required aria-label="Phone" />
+      </div>
+
+      <div class="row">
+        <label for="resumeUpload">Resume/CV *</label>
+        <input id="resumeUpload" name="resume" type="file" required aria-label="Upload resume" />
+      </div>
+
+      <fieldset>
+        <legend>Pronouns</legend>
+        <div class="inline">
+          <label><input type="radio" name="pronouns" value="She/Her" /> She/Her</label>
+          <label><input type="radio" name="pronouns" value="He/Him" /> He/Him</label>
+          <label><input type="radio" name="pronouns" value="They/Them" /> They/Them</label>
+        </div>
+      </fieldset>
+
+      <div class="row">
+        <label for="expQ">How many years of professional experience do you have building frontend web applications?</label>
+        <input id="expQ" name="yearsExperienceQuestion" />
+      </div>
+
+      <div class="row">
+        <label for="country">Country *</label>
+        <select id="country" name="country" required>
+          <option value="">Select...</option>
+          <option value="United States">United States</option>
+          <option value="Canada">Canada</option>
+        </select>
+      </div>
+    </form>
+  </body>
+</html>

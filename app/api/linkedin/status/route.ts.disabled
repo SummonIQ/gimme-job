@@ -1,0 +1,48 @@
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { db } from "@/lib/db/client";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Check if user has LinkedIn integration
+    const integration = await db.userIntegration.findUnique({
+      where: {
+        userId_provider: {
+          userId: user.id,
+          provider: "LINKEDIN",
+        },
+      },
+    });
+
+    // Check if user has imported LinkedIn profile
+    const profile = await db.linkedInProfile.findFirst({
+      where: { userId: user.id },
+    });
+
+    const isConnected = !!(integration && profile);
+    const needsReauth = integration ? new Date() > integration.expiresAt : false;
+
+    return NextResponse.json({
+      connected: isConnected,
+      hasIntegration: !!integration,
+      hasProfile: !!profile,
+      needsReauth,
+      profile: profile ? {
+        name: `${profile.firstName} ${profile.lastName}`,
+        headline: profile.headline,
+        profilePictureUrl: profile.profilePictureUrl,
+      } : null,
+    });
+  } catch (error) {
+    console.error("Error checking LinkedIn status:", error);
+    return NextResponse.json(
+      { error: "Failed to check LinkedIn status" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,0 +1,641 @@
+ M .applab/screenshots/gimme-job/latest.png
+ M .gitignore
+ M .vscode/settings.json
+ M AGENTS.md
+ M app/(app)/@modal/(.)upgrade/page.tsx
+ M app/(app)/admin/admin-dashboard.tsx
+ M app/(app)/admin/applications/[id]/page.tsx
+ D app/(app)/admin/assist-training/_components/session-detail-modal.tsx
+ M app/(app)/admin/assist-training/page.tsx
+ M app/(app)/admin/ingestion/ingestion-tabs.tsx
+ M app/(app)/admin/leads/page.tsx
+ M app/(app)/admin/listings/listings-tabs.tsx
+ M app/(app)/admin/observations/_components/observations-client.tsx
+ M app/(app)/admin/observations/page.tsx
+ M app/(app)/analytics/exports/page.tsx
+ M app/(app)/analytics/interviews/page.tsx
+ M app/(app)/analytics/job-leads/page.tsx
+ M app/(app)/analytics/job-searches/page.tsx
+ M app/(app)/analytics/performance/page.tsx
+ M app/(app)/analytics/resumes/page.tsx
+ M app/(app)/analytics/skills/page.tsx
+ M app/(app)/analytics/timing/page.tsx
+ M app/(app)/dashboard/analytics/page-client.tsx
+ M app/(app)/dashboard/analytics/page.tsx
+ M app/(app)/dashboard/page.tsx
+ M app/(app)/jobs/[id]/connections/page.tsx
+ M app/(app)/jobs/[id]/page.tsx
+ D app/(app)/jobs/layout.tsx
+ D app/(app)/jobs/search/indeed/page.tsx
+ M app/(app)/jobs/searches/[id]/components/job-search-client.tsx
+ M app/(app)/jobs/searches/[id]/page.tsx
+ M app/(app)/layout.tsx
+ M app/(app)/leads/[id]/page.tsx
+ M app/(app)/linkedin/page.tsx
+ M app/(app)/people-profiles/[id]/page.tsx
+ D app/(app)/portfolio/page.tsx
+ M app/(app)/profile/(tabs)/details/page.tsx
+ M app/(app)/profile/(tabs)/job-preferences/page.tsx
+ M app/(app)/profile/(tabs)/layout.tsx
+ M app/(app)/profile/(tabs)/page.tsx
+ M app/(app)/profile/(tabs)/resumes/page.tsx
+ D app/(app)/profile/resumes/[id]/_components/analysis-section.tsx
+ D app/(app)/profile/resumes/[id]/_components/optimized-resume-section.tsx
+ D app/(app)/profile/resumes/[id]/_components/original-resume-section.tsx
+ D app/(app)/profile/resumes/[id]/_components/resume-chat.tsx
+ D app/(app)/profile/resumes/[id]/page.tsx
+ M app/(app)/resumes/page.tsx
+ M app/(app)/settings/knowledge/page.tsx
+ M app/(app)/settings/notifications/page.tsx
+ M app/(app)/tools/analytics/application-outcomes/page.tsx
+ M app/(app)/tools/analytics/charts-showcase/page.tsx
+ M app/(app)/tools/analytics/job-search-effectiveness/page-client.tsx
+ M app/(app)/tools/analytics/job-search-effectiveness/page.tsx
+ M app/(app)/tools/analytics/resume-performance/page.tsx
+ M app/(app)/tools/ats-research/page.tsx
+ M app/(app)/tools/automation/errors/page-client.tsx
+ M app/(app)/tools/automation/errors/page.tsx
+ D app/(app)/tools/automation/linkedin/page.tsx
+ M app/(app)/tools/automation/safety/page.tsx
+ M app/(app)/tools/automation/scheduling/page-client.tsx
+ M app/(app)/tools/automation/scheduling/page.tsx
+ D app/(app)/tools/company-research/page.tsx
+ M app/(app)/tools/interview-prep/page.tsx
+ D app/(app)/tools/network/page.tsx
+ M app/(marketing)/components/landing/hero-interactive-background.tsx
+ M app/api/admin/cron/fail-stuck-leads/route.ts
+ M app/api/admin/scrape/cron/route.ts
+ M app/api/admin/scrape/route.ts
+ M app/api/analytics/applications/route.ts
+ M app/api/analytics/route.ts
+ M app/api/applications/outcome-metrics/route.ts
+ M app/api/assist-mode/default-resume/route.ts
+ M app/api/assist-mode/field-answers/route.ts
+ M app/api/assist-mode/field-observation/route.ts
+ M app/api/assist-mode/profile/route.ts
+ M app/api/assist-training/[id]/route.ts
+ M app/api/assist-training/process/route.ts
+ M app/api/data/[model]/report/route.ts
+ M app/api/events/user-auth/route.ts
+ M app/api/guided-applications/best-apply-option/route.ts
+ M app/api/interviewer-research/route.ts
+ D app/api/interviews/evaluate/route.ts
+ D app/api/interviews/questions/route.ts
+ M app/api/job-searches/route.ts
+ M app/api/jobs/dismiss-company/route.ts
+ M app/api/jobs/refresh/route.ts
+ M app/api/jobs/route.ts
+ D app/api/leads/[leadId]/route.ts.disabled
+ D app/api/leads/analytics/route.ts.disabled
+ D app/api/leads/config/route.ts.disabled
+ D app/api/leads/route.ts.disabled
+ D app/api/leads/search/route.ts.disabled
+ D app/api/linkedin/analytics/connections/route.ts.disabled
+ D app/api/linkedin/analytics/route.ts.disabled
+ D app/api/linkedin/automation/settings/route.ts.disabled
+ D app/api/linkedin/company/compare/route.ts.disabled
+ D app/api/linkedin/company/networking-opportunities/route.ts.disabled
+ D app/api/linkedin/company/org-chart/route.ts.disabled
+ D app/api/linkedin/company/research/route.ts.disabled
+ D app/api/linkedin/connections/route.ts.disabled
+ D app/api/linkedin/connections/send/route.ts.disabled
+ D app/api/linkedin/follow-ups/route.ts.disabled
+ D app/api/linkedin/jobs/[id]/prepare/route.ts.disabled
+ D app/api/linkedin/jobs/apply/route.ts.disabled
+ D app/api/linkedin/jobs/search/route.ts.disabled
+ D app/api/linkedin/learning/achievements/route.ts.disabled
+ D app/api/linkedin/learning/analytics/route.ts.disabled
+ D app/api/linkedin/learning/certifications/route.ts.disabled
+ D app/api/linkedin/learning/enroll/route.ts.disabled
+ D app/api/linkedin/learning/paths/route.ts.disabled
+ D app/api/linkedin/learning/recommendations/route.ts.disabled
+ D app/api/linkedin/learning/reminders/route.ts.disabled
+ D app/api/linkedin/learning/skill-progress/route.ts.disabled
+ D app/api/linkedin/learning/streaks/route.ts.disabled
+ D app/api/linkedin/network/gaps/route.ts.disabled
+ D app/api/linkedin/network/graph/route.ts.disabled
+ D app/api/linkedin/network/growth/route.ts.disabled
+ D app/api/linkedin/network/health/route.ts.disabled
+ D app/api/linkedin/network/path/route.ts.disabled
+ D app/api/linkedin/network/quality/route.ts.disabled
+ D app/api/linkedin/network/strength/[connectionId]/route.ts.disabled
+ D app/api/linkedin/rate-limits/route.ts.disabled
+ D app/api/linkedin/safety/dashboard/route.ts.disabled
+ D app/api/linkedin/status/route.ts.disabled
+ M app/api/locations/search/route.ts
+ M app/api/people-profiles/[id]/route.ts
+ D app/api/portfolio/[portfolioId]/route.ts
+ D app/api/portfolio/analytics/route.ts
+ D app/api/portfolio/documentation/generate/route.ts
+ D app/api/portfolio/generate/route.ts
+ D app/api/portfolio/github/sync/route.ts
+ D app/api/portfolio/list/route.ts
+ D app/api/portfolio/projects/enhance/route.ts
+ D app/api/portfolio/projects/route.ts
+ D app/api/portfolio/templates/route.ts
+ D app/api/portfolio/visual/enhance/route.ts
+ M app/api/resumes/[id]/performance-metrics/route.ts
+ M app/api/resumes/[id]/route.ts
+ D app/api/sentry-example-api/route.ts
+ M app/docs/design-system/badges/page.tsx
+ M app/docs/design-system/progress/page.tsx
+ M app/globals.css
+ D app/interviews/simulate/page-client.tsx
+ D app/interviews/simulate/page.tsx
+ M app/login/page.tsx
+ M app/shared/[token]/page.tsx
+ M app/shared/dashboard/[token]/client.tsx
+ M app/skills/gap-analysis/page.tsx
+ M app/unauthorized.tsx
+ M bun.lock
+ M components/analytics/application-metrics-overview.tsx
+ M components/analytics/application-timeline.tsx
+ M components/analytics/application-timing-analytics.tsx
+ M components/analytics/charts.tsx
+ M components/analytics/job-lead-metrics.tsx
+ M components/analytics/job-search-metrics.tsx
+ M components/analytics/job-search-performance-dashboard.tsx
+ D components/analytics/overview.tsx
+ M components/analytics/page-tracker.tsx
+ M components/analytics/platform-comparison.tsx
+ M components/analytics/resume-metrics.tsx
+ M components/analytics/skills-gap-analysis.tsx
+ M components/auth/login-form.tsx
+ M components/automation/automation-emergency-controls.tsx
+ M components/automation/automation-history.tsx
+ M components/automation/automation-notification-settings.tsx
+ M components/automation/error-monitoring-dashboard.tsx
+ D components/automation/linkedin-automation-dashboard.tsx
+ M components/automation/multi-platform-dashboard.tsx
+ M components/charts/interactive/index.tsx
+ M components/charts/interactive/realtime.tsx
+ M components/common/logo-backup.tsx
+ M components/common/logo.tsx
+ M components/data/metadata-list.tsx
+ M components/exports/scheduled-reports-manager.tsx
+ M components/guided-application/apply-option-link.tsx
+ M components/guided-application/field-suggestion-card.tsx
+ M components/guided-application/ranked-apply-options.tsx
+ D components/interviews/question-card.tsx
+ M components/job-applications/apply-button.tsx
+ M components/job-applications/indeed-application-form.tsx
+ M components/job-leads/add-job-lead-button.tsx
+ M components/job-leads/job-lead-progress-tracker.tsx
+ M components/job-leads/job-leads-report.tsx
+ M components/job-listings/dismiss-job-listing-button.tsx
+ M components/job-listings/job-badges.tsx
+ M components/job-listings/job-description.tsx
+ M components/job-listings/job-listing-card.tsx
+ M components/job-listings/job-listing-detail-modal.tsx
+ M components/job-listings/job-listing-status-badge.tsx
+ M components/job-listings/job-listings-filters.tsx
+ M components/job-listings/job-listings-report.tsx
+ M components/job-listings/job-recommendations.tsx
+ M components/job-listings/job-source-icon.tsx
+ M components/job-listings/save-job-listing-button.tsx
+ M components/job-player/job-player-content.tsx
+ D components/job-search/indeed-search-form.tsx
+ M components/job-search/job-search-bar.tsx
+ M components/job-search/job-search-client.tsx
+ M components/job-search/job-search-form.tsx
+ M components/job-search/job-search-progress.tsx
+ M components/job-search/pagination.tsx
+ D components/job-search/search-header-controls.tsx
+ M components/job-searches/job-search-editor.tsx
+ M components/job-searches/job-search-form.tsx
+ M components/job-searches/job-search-queue.tsx
+ M components/job-searches/job-searches-report.tsx
+ M components/layout/page-back-button.tsx
+ M components/layout/page.tsx
+ M components/layout/responsive.tsx
+ D components/linkedin/company-research-dashboard.tsx
+ D components/linkedin/linkedin-connection-dashboard.tsx
+ D components/linkedin/linkedin-one-click-apply.tsx
+ D components/linkedin/network-analysis-dashboard.tsx
+ D components/linkedin/network-visualization.tsx
+ D components/linkedin/organizational-chart.tsx
+ M components/linkedin/profile-import.tsx
+ M components/navigation/admin-nav-config.ts
+ M components/navigation/app-header.tsx
+ M components/navigation/mobile-admin-navigation.tsx
+ M components/navigation/mobile-main-navigation.tsx
+ M components/navigation/tab-navigation.tsx
+ M components/notifications/application-tracking-modal.tsx
+ M components/notifications/notification-item.tsx
+ D components/portfolio/portfolio-dashboard.tsx
+ M components/providers/applab-analytics-provider.tsx
+ M components/resumes/resume-editor.tsx
+ M components/resumes/resume-form.tsx
+ M components/resumes/resume-optimization-queue.tsx
+ M components/resumes/resume-optimization-status-badge.tsx
+ M components/resumes/resumes-report.tsx
+ M components/ui/accordion.tsx
+ M components/ui/alert-dialog.tsx
+ M components/ui/alert.tsx
+ M components/ui/animated-sort-icon.tsx
+ M components/ui/badge.tsx
+ M components/ui/button.tsx
+ M components/ui/card.tsx
+ M components/ui/checkbox.tsx
+ M components/ui/combobox.tsx
+ M components/ui/command.tsx
+ M components/ui/data-table-column-header.tsx
+ M components/ui/data-table.tsx
+ M components/ui/dialog.tsx
+ M components/ui/drawer.tsx
+ M components/ui/file-upload-input.tsx
+ M components/ui/form.tsx
+ M components/ui/glass.tsx
+ M components/ui/input.tsx
+ M components/ui/modal.tsx
+ M components/ui/navigation-menu.tsx
+ M components/ui/progress.tsx
+ M components/ui/radio-group.tsx
+ M components/ui/read-more-block.tsx
+ M components/ui/resizable.tsx
+ M components/ui/responsive-dialog/responsive-dialog.tsx
+ M components/ui/select.tsx
+ M components/ui/shimmer-card.tsx
+ M components/ui/slide-panel.tsx
+ M components/ui/spinner.tsx
+ M components/ui/switch.tsx
+ M components/ui/table.tsx
+ M components/ui/tabs.tsx
+ M components/ui/textarea.tsx
+ M components/ui/time-picker.tsx
+ M components/ui/toast.tsx
+ M components/ui/toaster.tsx
+ M components/ui/tooltip.tsx
+ M components/ui/view-mode-toggle.tsx
+ M constants/job-leads/attributes.tsx
+ D constants/job-leads/index.ts
+ D constants/job-leads/job-fit/index.ts
+ M constants/job-listings/attributes.tsx
+ D constants/job-listings/index.ts
+ D constants/job-searches/index.ts
+ D constants/resumes/analysis/index.ts
+ D constants/resumes/optimization/index.ts
+ M eslint.config.mjs
+ M hooks/use-report-data.ts
+ M lib/a11y/test-mode.ts
+ M lib/admin/scrape-service.ts
+ M lib/admin/usage-budget.ts
+ M lib/ai/index.ts
+ M lib/analytics/index.ts
+ M lib/analytics/job-search-effectiveness.ts
+ D lib/api/apollo-client.ts
+ D lib/api/indeed-client.ts
+ D lib/api/linkedin-client.ts
+ D lib/api/linkedin-jobs.ts
+ D lib/api/zoominfo-client.ts
+ M lib/applications/logging.ts
+ D lib/applications/outcomes/index.ts
+ M lib/applications/outcomes/metrics.ts
+ M lib/applications/outcomes/track.ts
+ M lib/applications/services/company-direct.ts
+ M lib/applications/services/field-mapping.ts
+ D lib/applications/services/indeed-submission.ts
+ M lib/applications/services/index.ts
+ D lib/applications/services/linkedin-enhanced.ts
+ D lib/applications/services/linkedin.ts
+ M lib/applications/services/unified-application.ts
+ M lib/applications/submit.ts
+ M lib/assist-training/vision-analyzer.ts
+ M lib/automation/__tests__/intelligent-scheduler.test.ts
+ M lib/automation/analytics-enhanced.ts
+ M lib/automation/analytics.ts
+ M lib/automation/audit.ts
+ M lib/automation/error-handler.ts
+ M lib/automation/intelligent-scheduler.ts
+ M lib/automation/multi-platform-manager.ts
+ M lib/automation/safety-validator.ts
+ D lib/cache/life.ts
+ M lib/changelog-categories.ts
+ M lib/css/index.ts
+ M lib/dev/trigger-push.ts
+ D lib/events/clients/index.ts
+ M lib/events/send.ts
+ M lib/exports/data-exporter.ts
+ M lib/exports/scheduled-reports.ts
+ M lib/exports/shareable-dashboards.ts
+ D lib/files/convert/index.ts
+ M lib/files/convert/pdf-to-markdown.ts
+ D lib/files/lint/index.ts
+ M lib/guided-applications/form-analyzer.ts
+ M lib/guided-applications/session.ts
+ D lib/interviews/evaluate.ts
+ D lib/interviews/generate.ts
+ D lib/interviews/types.ts
+ D lib/job-leads/analyze/index.ts
+ M lib/job-leads/create.ts
+ M lib/job-leads/dismiss.ts
+ M lib/job-leads/effective-status.ts
+ M lib/job-leads/index.ts
+ M lib/job-leads/process-optimization.ts
+ M lib/job-leads/reoptimize.ts
+ M lib/job-leads/status.ts
+ M lib/job-searches/create.ts
+ M lib/job-searches/queue.ts
+ D lib/job-searches/services/indeed-api.ts
+ M lib/job-searches/services/job-search-listings.ts
+ M lib/job-searches/services/serpapi.ts
+ D lib/leads/enrichment-pipeline.ts
+ D lib/linkedin/connection-automation.ts
+ M lib/linkedin/profile-import.ts
+ M lib/notifications/index.ts
+ M lib/onboarding/actions.ts
+ D lib/portfolio/documentation-assistant.ts
+ D lib/portfolio/github-integration.ts
+ D lib/portfolio/portfolio-analytics.ts
+ D lib/portfolio/portfolio-generator.ts
+ D lib/portfolio/template-system.ts
+ D lib/portfolio/visual-enhancement.ts
+ D lib/resumes/analyze/index.ts
+ M lib/resumes/create.ts
+ D lib/resumes/events/index.ts
+ M lib/resumes/events/notification.ts
+ M lib/resumes/index.ts
+ D lib/resumes/optimize/index.ts
+ M lib/resumes/optimize/optimize.ts
+ D lib/resumes/revise/index.ts
+ M lib/resumes/revisions/index.ts
+ M lib/resumes/revisions/query.ts
+ M lib/user/knowledge.ts
+ M lib/user/query.ts
+ M lib/utils.ts
+ D mobile/bun.lock
+ D mobile/components/ui/logo.tsx
+ M next.config.ts
+ M package.json
+ D playwright-report/data/19515e9c120aa26fac0bc87eed50264e04164b0d.png
+ D playwright-report/data/c28c0161efe11500ed13d2d1b0111891d813b5b2.md
+ D playwright-report/data/f2c205747cb5a849bb21756297ab10b0cdfeccc7.webm
+ M playwright-report/index.html
+ M prisma.config.ts
+ M prisma/schema.prisma
+ M proxy.ts
+ M scrapers/scraped-job.ts
+ M tailwind.config.ts
+ M test-results/.last-run.json
+ D test-results/pages-admin-admin-assist-t-2d071-ssist-training-page-renders-chromium/error-context.md
+ D test-results/pages-admin-admin-assist-t-2d071-ssist-training-page-renders-chromium/test-failed-1.png
+ D test-results/pages-admin-admin-assist-t-2d071-ssist-training-page-renders-chromium/video.webm
+ M tests/e2e/pages/auth/login-page.spec.ts
+ D tests/e2e/pages/job-searches/job-searches-page.spec.ts
+ M tests/e2e/pages/resumes/resume-details.spec.ts
+ M tests/e2e/pages/resumes/resume-realtime-and-diff.spec.ts
+ M tests/e2e/pages/validate-resume-fixes.spec.ts
+ M tsconfig.json
+ D types/data/index.ts
+ D types/domain/index.ts
+ D types/domain/job-lead/index.ts
+ D types/domain/job-listing/index.ts
+ D types/domain/user/index.ts
+ M types/events/data-update.ts
+ M types/job-lead/event.ts
+ D types/job-search/index.ts
+ M vercel.json
+?? .applab/screenshots/gimme-job/1774840756-capture.png
+?? .applab/screenshots/gimme-job/1774840769-capture.png
+?? .applab/screenshots/gimme-job/1774840777-capture.png
+?? .applab/screenshots/gimme-job/1774840781-capture.png
+?? .applab/screenshots/gimme-job/1774840803-capture.png
+?? .applab/screenshots/gimme-job/1774840805-capture.png
+?? .applab/screenshots/gimme-job/1774840813-capture.png
+?? .applab/screenshots/gimme-job/1774840862-capture.png
+?? .applab/screenshots/gimme-job/1774840893-capture.png
+?? .applab/screenshots/gimme-job/1774840897-capture.png
+?? .applab/screenshots/gimme-job/1774840915-capture.png
+?? .applab/screenshots/gimme-job/1774841072-capture.png
+?? .applab/screenshots/gimme-job/1774841304-capture.png
+?? .applab/screenshots/gimme-job/1774841328-capture.png
+?? .applab/screenshots/gimme-job/1774841349-capture.png
+?? .applab/screenshots/gimme-job/1774841352-capture.png
+?? .applab/screenshots/gimme-job/1774841402-capture.png
+?? .applab/screenshots/gimme-job/1774841446-capture.png
+?? .applab/screenshots/gimme-job/1774841653-capture.png
+?? .applab/screenshots/gimme-job/1774841866-capture.png
+?? .applab/screenshots/gimme-job/1774841892-capture.png
+?? .applab/screenshots/gimme-job/1774842002-capture.png
+?? .applab/screenshots/gimme-job/1774842005-capture.png
+?? .applab/screenshots/gimme-job/1774842057-capture.png
+?? .applab/screenshots/gimme-job/1774842658-capture.png
+?? .applab/screenshots/gimme-job/1774842682-capture.png
+?? .applab/screenshots/gimme-job/1774842715-capture.png
+?? .applab/screenshots/gimme-job/1774842723-capture.png
+?? .applab/screenshots/gimme-job/1774842815-capture.png
+?? .applab/screenshots/gimme-job/1774842825-capture.png
+?? .applab/screenshots/gimme-job/1774842831-capture.png
+?? .applab/screenshots/gimme-job/1774842844-capture.png
+?? .applab/screenshots/gimme-job/1774842856-capture.png
+?? .applab/screenshots/gimme-job/1774842927-capture.png
+?? .applab/screenshots/gimme-job/1774842933-capture.png
+?? .applab/screenshots/gimme-job/1774842944-capture.png
+?? .applab/screenshots/gimme-job/1774842952-capture.png
+?? .applab/screenshots/gimme-job/1774842954-capture.png
+?? .applab/screenshots/gimme-job/1774842972-capture.png
+?? .applab/screenshots/gimme-job/1774842974-capture.png
+?? .applab/screenshots/gimme-job/1774842988-capture.png
+?? .applab/screenshots/gimme-job/1774842991-capture.png
+?? .applab/screenshots/gimme-job/1774843005-capture.png
+?? .applab/screenshots/gimme-job/1774843141-capture.png
+?? .applab/screenshots/gimme-job/1774843144-capture.png
+?? .applab/screenshots/gimme-job/1774843284-capture.png
+?? .applab/screenshots/gimme-job/1774843686-capture.png
+?? .applab/screenshots/gimme-job/1774844667-capture.png
+?? .applab/screenshots/gimme-job/1774844723-capture.png
+?? .applab/screenshots/gimme-job/1774844927-capture.png
+?? .applab/screenshots/gimme-job/1774845258-capture.png
+?? .applab/screenshots/gimme-job/1774845266-capture.png
+?? .applab/screenshots/gimme-job/1774845768-capture.png
+?? .applab/screenshots/gimme-job/1774846127-capture.png
+?? .applab/screenshots/gimme-job/1774846135-capture.png
+?? .applab/screenshots/gimme-job/1774846788-capture.png
+?? .applab/screenshots/gimme-job/1774848319-capture.png
+?? .applab/screenshots/gimme-job/1774903485-capture.png
+?? .applab/screenshots/gimme-job/1774903489-capture.png
+?? .applab/screenshots/gimme-job/1775013280-capture.png
+?? .applab/screenshots/gimme-job/1775013291-capture.png
+?? .applab/screenshots/gimme-job/1775035373-capture.png
+?? .applab/screenshots/gimme-job/1775294440-capture.png
+?? .applab/screenshots/gimme-job/1775295762-capture.png
+?? .applab/screenshots/gimme-job/1775297243-capture.png
+?? .applab/screenshots/gimme-job/1775300748-capture.png
+?? .applab/screenshots/gimme-job/1775301051-capture.png
+?? .applab/screenshots/gimme-job/1775306585-capture.png
+?? .applab/screenshots/gimme-job/1775306589-capture.png
+?? .applab/screenshots/gimme-job/1775306596-capture.png
+?? .applab/screenshots/gimme-job/1775306623-capture.png
+?? .applab/screenshots/gimme-job/1775306625-capture.png
+?? .applab/screenshots/gimme-job/1775313625-capture.png
+?? .applab/screenshots/gimme-job/1775314107-capture.png
+?? .applab/screenshots/gimme-job/1775314114-capture.png
+?? .applab/screenshots/gimme-job/1775314131-capture.png
+?? .applab/screenshots/gimme-job/1775314243-capture.png
+?? .applab/screenshots/gimme-job/1775314262-capture.png
+?? .applab/screenshots/gimme-job/1775314636-capture.png
+?? .applab/screenshots/gimme-job/1775314718-capture.png
+?? .applab/screenshots/gimme-job/1775315310-capture.png
+?? .applab/screenshots/gimme-job/1775315953-capture.png
+?? .applab/screenshots/gimme-job/1775324804-capture.png
+?? .applab/screenshots/gimme-job/1775374654-capture.png
+?? .applab/screenshots/gimme-job/1775375128-capture.png
+?? .applab/screenshots/gimme-job/1775375189-capture.png
+?? .applab/screenshots/gimme-job/1775377223-capture.png
+?? .applab/screenshots/gimme-job/1775388568-capture.png
+?? .applab/screenshots/gimme-job/1775391851-capture.png
+?? .applab/screenshots/gimme-job/1775392925-capture.png
+?? .applab/screenshots/gimme-job/1775392965-capture.png
+?? .applab/screenshots/gimme-job/1775393093-capture.png
+?? .applab/screenshots/gimme-job/1775393119-capture.png
+?? .applab/screenshots/gimme-job/1775393181-capture.png
+?? .applab/screenshots/gimme-job/1775393193-capture.png
+?? .applab/screenshots/gimme-job/1775393498-capture.png
+?? .applab/screenshots/gimme-job/1775393900-capture.png
+?? .applab/screenshots/gimme-job/1775393912-capture.png
+?? .claude/settings.json
+?? .npmrc
+?? .playwright-cli/
+?? .playwright-mcp/
+?? CLAUDE_AI_PLAN.md
+?? CODEX_AI_PLAN.md
+?? COPILOT_AI_PLAN.md
+?? FINAL_PLAN.md
+?? app/(app)/@modal/(.)upgrade/page-client.tsx
+?? app/(app)/admin/listings/public-ats-tab.tsx
+?? app/(app)/admin/plan-board/
+?? app/(app)/admin/runtime/
+?? app/(app)/analytics/loading.tsx
+?? app/(app)/dashboard/loading.tsx
+?? app/(app)/jobs/loading.tsx
+?? app/(app)/leads/[id]/loading.tsx
+?? app/(app)/notifications/loading.tsx
+?? app/(app)/resumes/[id]/
+?? app/(app)/resumes/loading.tsx
+?? app/(app)/settings/loading.tsx
+?? app/(app)/tools/loading.tsx
+?? app/api/admin/cron/retrain/
+?? app/api/admin/plan-board/
+?? app/api/admin/public-ats/
+?? app/api/admin/runtime/
+?? app/api/admin/scrape/runs/
+?? app/api/assist-training/clear/
+?? app/api/assist-training/random-job/
+?? app/api/manual-training/
+?? app/api/queue/
+?? app/api/resume-revisions/
+?? app/api/runtime/sessions/[id]/route.ts
+?? app/api/runtime/sessions/route.ts
+?? app/not-found.tsx
+?? bunfig.toml
+?? components/common/logo-dollar.tsx
+?? components/common/logo-old.tsx
+?? components/common/logo-v2.tsx
+?? components/dashboard/
+?? components/job-applications/manual-training-modal.tsx
+?? components/job-leads/job-lead-processing-float-server.tsx
+?? components/job-leads/job-lead-processing-float.tsx
+?? components/job-listings/format-job-provider-label.ts
+?? components/job-listings/job-description-with-enrichment.tsx
+?? components/job-search/job-search-provider.tsx
+?? components/layout/hired-watermark.tsx
+?? components/resumes/inline-resume-markdown-editor.tsx
+?? components/resumes/lead-revisions-report.tsx
+?? components/resumes/resumes-tabs-report.tsx
+?? components/skeletons/job-lead-detail-skeleton.tsx
+?? components/ui/rotating-text.tsx
+?? components/ui/search-input.tsx
+?? components/ui/surface.tsx
+?? constants/ui/
+?? docs/job-ingestion-strategy.md
+?? docs/self-learning-application-runtime-spec.md
+?? lib/admin/plan-board-types.ts
+?? lib/admin/plan-board.ts
+?? lib/admin/public-ats.ts
+?? lib/admin/runtime-proposals.ts
+?? lib/admin/summonflow.ts
+?? lib/analytics/overview-query.ts
+?? lib/analytics/server.ts
+?? lib/assist-training/__tests__/
+?? lib/assist-training/auto-retrain.ts
+?? lib/assist-training/confidence.ts
+?? lib/assist-training/insights.ts
+?? lib/assist-training/selectors.ts
+?? lib/css/color.ts
+?? lib/guided-applications/ats-adapters.ts
+?? lib/job-listings/enrich-description.ts
+?? lib/job-listings/normalize-apply-options.ts
+?? lib/job-listings/search-types.ts
+?? lib/job-listings/search.ts
+?? lib/pipeline/
+?? lib/resumes/file-naming.ts
+?? lib/resumes/revisions/name.ts
+?? lib/runtime-flow-definitions.ts
+?? lib/runtime-model-support.ts
+?? lib/runtime-orchestration.ts
+?? lib/runtime-session-events.ts
+?? lib/runtime-trust-policy.ts
+?? prisma/migrations/20260315000000_add_ats_learning_models/
+?? prisma/migrations/20260322_pipeline_queue/
+?? prisma/migrations/20260327093000_schema_catchup/
+?? prisma/migrations/20260327113000_add_application_flow_definitions/
+?? prisma/migrations/20260327114500_drop_application_flow_step_defaults/
+?? prisma/migrations/20260412044246_add_training_type_to_assist_session/
+?? prisma/migrations/20260420000000_add_job_provider_enum_values/
+?? prisma/migrations/20260420000001_backfill_job_provider/
+?? prisma/migrations/20260422000100_add_plan_board/
+?? scrapers/__tests__/
+?? scrapers/ashby-scraper.ts
+?? scrapers/greenhouse-scraper.ts
+?? scrapers/lever-scraper.ts
+?? scrapers/public-ats-registry.ts
+?? scrapers/public-ats-shared.ts
+?? scrapers/smartrecruiters-scraper.ts
+?? scripts/analyze-job-listings.ts
+?? scripts/analyze-serpapi-countries.ts
+?? scripts/backfill-serpapi-apply-options.ts
+?? scripts/run-public-ats-scraper.ts
+?? scripts/setup-summonflow-app.ts
+?? scripts/validate-public-ats.ts
+?? test-results/assist-account-creation-se-3476e-st-account-creation-setting-chromium/
+?? test-results/design-system-badges-page.png
+?? test-results/linkedin-login-blocked-by-build-error.png
+?? test-results/linkedin-page-login-redirect-after-api-removal.png
+?? test-results/profile-route-login-redirect.png
+?? tests/e2e/jobs-page-ssr.spec.ts
+?? tests/e2e/pages/jobs/job-search-bar.spec.ts
+?? tests/e2e/screenshots/border-default-fix.png
+?? tests/e2e/screenshots/button-cleanup.png
+?? tests/e2e/screenshots/button-dashboard.png
+?? tests/e2e/screenshots/button-hover.png
+?? tests/e2e/screenshots/combobox-custom-submitted.png
+?? tests/e2e/screenshots/combobox-custom-typed.png
+?? tests/e2e/screenshots/combobox-dropdown-open.png
+?? tests/e2e/screenshots/dashboard-cards-cleanup.png
+?? tests/e2e/screenshots/dashboard-gap-check.png
+?? tests/e2e/screenshots/dashboard-no-header-gap.png
+?? tests/e2e/screenshots/dashboard-no-suspense.png
+?? tests/e2e/screenshots/dashboard-padding-fix.png
+?? tests/e2e/screenshots/dashboard-page-refactor.png
+?? tests/e2e/screenshots/edge-glow-scale200.png
+?? tests/e2e/screenshots/edge-glow-scaled.png
+?? tests/e2e/screenshots/glass-edge-dark.png
+?? tests/e2e/screenshots/glass-edge-dark2.png
+?? tests/e2e/screenshots/glass-edge-dark3.png
+?? tests/e2e/screenshots/glass-edge-fix.png
+?? tests/e2e/screenshots/glass-edge-gap-fix.png
+?? tests/e2e/screenshots/glass-edge-sat200.png
+?? tests/e2e/screenshots/glass-edge-stronger.png
+?? tests/e2e/screenshots/glass-extended.png
+?? tests/e2e/screenshots/glass-inline-styles.png
+?? tests/e2e/screenshots/globals-css-refactor.png
+?? tests/e2e/screenshots/header-after-cleanup.png
+?? tests/e2e/screenshots/jobs-page-server-refactor.png
+?? tests/e2e/screenshots/search-bar-final.png
+?? tests/e2e/screenshots/search-bar-rotated.png
+?? tests/e2e/screenshots/surface-as-header.png
+?? tests/e2e/screenshots/surface-glass-header.png
+?? tests/e2e/screenshots/surface-refactor.png
+?? tests/e2e/screenshots/tools-dropdown-nav-blur.png
+?? types/runtime.ts
+?? vendor/

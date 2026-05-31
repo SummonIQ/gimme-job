@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { db } from '@/lib/db/client';
+
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get completed learning paths
+    const completedPaths = await db.linkedInLearningPath.findMany({
+      where: {
+        userId: user.id,
+        progress: 100,
+      },
+      include: {
+        steps: {
+          include: {
+            course: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    const achievements = completedPaths.map(path => {
+      const totalHours = Math.round(
+        path.steps.reduce((sum, step) => sum + (step.course?.duration || 0), 0)
+      );
+
+      // Extract unique skills from all courses in the path
+      const skillsAcquired = [
+        ...new Set(
+          path.steps.flatMap(step => step.course?.skills || [])
+        ),
+      ];
+
+      return {
+        id: path.id,
+        pathTitle: path.title,
+        completionDate: path.updatedAt, // Use last update as completion
+        totalCourses: path.steps.length,
+        totalHours,
+        skillsAcquired,
+      };
+    });
+
+    return NextResponse.json(achievements);
+  } catch (error) {
+    console.error('Error fetching learning path achievements:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch achievements' },
+      { status: 500 }
+    );
+  }
+}

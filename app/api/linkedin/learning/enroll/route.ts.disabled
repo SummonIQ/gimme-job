@@ -1,0 +1,86 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getCurrentUser } from '@/lib/user/query';
+import { db } from '@/lib/db/client';
+import { z } from 'zod';
+
+const enrollSchema = z.object({
+  courseId: z.string().min(1, 'Course ID is required'),
+  notes: z.string().optional(),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validation = enrollSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid enrollment data', details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { courseId, notes } = validation.data;
+
+    // Check if course exists
+    const course = await db.linkedInLearningCourse.findUnique({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      return NextResponse.json(
+        { error: 'Course not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user is already enrolled
+    const existingEnrollment = await db.linkedInLearningEnrollment.findFirst({
+      where: {
+        courseId,
+        userId: user.id,
+      },
+    });
+
+    if (existingEnrollment) {
+      return NextResponse.json(
+        { error: 'Already enrolled in this course' },
+        { status: 409 }
+      );
+    }
+
+    // Create enrollment
+    const enrollment = await db.linkedInLearningEnrollment.create({
+      data: {
+        courseId,
+        userId: user.id,
+        progressPercentage: 0,
+        timeSpent: 0,
+        status: 'not_started',
+        notes,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      enrollment: {
+        id: enrollment.id,
+        courseId: enrollment.courseId,
+        status: enrollment.status,
+        progressPercentage: enrollment.progressPercentage,
+        enrolledAt: enrollment.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error enrolling in course:', error);
+    return NextResponse.json(
+      { error: 'Failed to enroll in course' },
+      { status: 500 }
+    );
+  }
+}

@@ -1,0 +1,21 @@
+import { NextResponse } from "next/server";
+import { identifyNetworkGaps } from "@/lib/linkedin/network-gaps";
+import { getCurrentUser } from "@/lib/user/query";
+
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const gaps = await identifyNetworkGaps();
+    return NextResponse.json(gaps);
+  } catch (error) {
+    console.error("Failed to identify network gaps:", error);
+    return NextResponse.json(
+      { error: "Failed to identify network gaps" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,0 +1,209 @@
+import { JobListing, JobSearchStatus } from '@prisma/client';
+import { CalendarIcon } from 'lucide-react';
+import type { Metadata } from 'next';
+
+import { JobListingsReport } from '@/components/job-listings/job-listings-report';
+import {
+  Page,
+  PageContent,
+  PageDescription,
+  PageHeader,
+  PageSummary,
+  PageTitle,
+} from '@/components/layout/page';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { JobSearchProgressWrapper } from '@/components/job-search/job-search-progress-wrapper';
+import { createJobLeads } from '@/lib/job-leads';
+import { dismissJobListings, saveJobListings } from '@/lib/job-listings';
+import { getJobSearch } from '@/lib/job-searches';
+import { getReportData } from '@/lib/reporting';
+import { getCurrentUser } from '@/lib/user';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const user = await getCurrentUser();
+  if (!user) {
+    return {
+      description: 'Please log in to view job search details.',
+      title: 'User not authenticated | Gimme Job',
+    };
+  }
+  
+  const { id } = await params;
+
+  const jobSearch = await getJobSearch({
+    id,
+    include: {
+      jobListings: true,
+    },
+    userId: user.id,
+  });
+
+  return {
+    description: 'View details about your job search.',
+    title: jobSearch
+      ? `Job Search - ${jobSearch.searchTerm} | Gimme Job`
+      : 'Job Search not found | Gimme Job',
+  };
+}
+
+export default async function JobSearchDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return (
+      <Page>
+        <PageHeader>
+          <PageSummary>
+            <PageTitle>User not authenticated</PageTitle>
+          </PageSummary>
+        </PageHeader>
+        <PageContent>
+          <p>Please log in to view job search details.</p>
+        </PageContent>
+      </Page>
+    );
+  }
+  
+  const { id } = await params;
+
+  const jobSearch = await getJobSearch({
+    id,
+    include: {
+      jobListings: true,
+    },
+    userId: user.id,
+  });
+
+  if (!jobSearch) {
+    return (
+      <Page>
+        <PageHeader>
+          <PageSummary>
+            <PageTitle>Job Search not found</PageTitle>
+            {/* <PageDescription>Search for and view job details.</PageDescription> */}
+          </PageSummary>
+        </PageHeader>
+        <PageContent>
+          <p>
+            Sorry, it looks like the job search you are looking for does not
+            exist anymore.
+          </p>
+        </PageContent>
+      </Page>
+    );
+  }
+
+  const jobListingsResult = await getReportData({
+    type: 'jobListings',
+    options: {
+      apiQuery: {
+        query: {
+          jobSearchId: jobSearch.id,
+        },
+      },
+    },
+    include: {
+      _count: true,
+    },
+    userId: user.id,
+  });
+  
+  // Extract the data property from the result
+  const jobListings = jobListingsResult?.data || [];
+
+  // Check if job search is still in progress
+  const isSearchInProgress = jobSearch.status === JobSearchStatus.QUEUED || 
+                           jobSearch.status === JobSearchStatus.PROCESSING;
+
+  return (
+    <Page>
+      <PageHeader>
+        <PageSummary>
+          <PageTitle>Job Search: {jobSearch.searchTerm}</PageTitle>
+          <PageDescription>
+            Showing search results for {jobSearch.searchTerm}
+            <div className="flex items-center text-sm text-muted-foreground/70">
+              <CalendarIcon
+                aria-hidden="true"
+                className="mr-2 size-4 shrink-0 opacity-80"
+              />
+
+              <div>
+                <span>Created on</span>{' '}
+                <span className="font-semibold">
+                  {jobSearch?.createdAt?.toLocaleString('en-US', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+            </div>
+          </PageDescription>
+        </PageSummary>
+        {isSearchInProgress && (
+          <div className="mb-6">
+            <JobSearchProgressWrapper jobSearchId={jobSearch.id} />
+          </div>
+        )}
+      </PageHeader>
+      <PageContent>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>Job Search Results</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {jobSearch?.jobListings ? (
+                <div className="space-y-1.5 sm:col-span-1">
+                  <dt className="text-sm/6 font-medium tracking-wide text-muted-foreground/80">
+                    # of Job Listings
+                  </dt>
+                  <dd className="flex flex-row items-center truncate text-sm/6 font-medium text-foreground sm:mt-2">
+                    <span>{jobSearch?.jobListings.length}</span>
+                  </dd>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
+
+        <Card>
+          <CardContent className="bg-accent/30 p-2 md:p-2">
+            <JobListingsReport
+              addToLeads={async ids => {
+                'use server';
+                await createJobLeads(ids);
+              }}
+              cacheKey={`job-search-${jobSearch.id}`}
+              dismiss={async ids => {
+                'use server';
+                await dismissJobListings(ids);
+              }}
+              filters={[
+                {
+                  field: 'jobSearchId',
+                  operator: 'eq',
+                  value: jobSearch.id,
+                },
+              ]}
+              initialData={jobListings}
+              save={async ids => {
+                'use server';
+                await saveJobListings(ids);
+              }}
+              showPagination={true}
+              showSelectedCount={false}
+            />
+          </CardContent>
+        </Card>
+      </PageContent>
+    </Page>
+  );
+}

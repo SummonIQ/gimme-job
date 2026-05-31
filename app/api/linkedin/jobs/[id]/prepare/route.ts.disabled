@@ -1,0 +1,34 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/user/query";
+import { getLinkedInJobDetails, prepareApplicationData } from "@/lib/api/linkedin-jobs";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id: jobId } = await params;
+
+    // Get job details including questions
+    const jobDetails = await getLinkedInJobDetails(jobId);
+
+    // Prepare application data with profile mapping
+    const applicationData = await prepareApplicationData(jobId);
+
+    return NextResponse.json({
+      job: jobDetails,
+      applicationData,
+    });
+  } catch (error) {
+    console.error("Error preparing LinkedIn application:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to prepare application" },
+      { status: 500 }
+    );
+  }
+}

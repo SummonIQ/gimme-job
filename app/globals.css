@@ -1,0 +1,448 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+@config '../tailwind.config.ts';
+
+/* ─── Base: CSS Variables & Resets ─── */
+
+@layer base {
+  :root {
+    --background: 0 0% 93%;
+    --page: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 258 90% 66%;
+    --primary-rgb: 139, 92, 246;
+    --primary-glow: 232, 116, 170;
+    --primary-foreground: 0 0% 98%;
+
+    --brand-1-lightest: 258 90% 96%;
+    --brand-1-lighter: 258 90% 84%;
+    --brand-1-light: 258 90% 74%;
+    --brand-1: 258 90% 66%;
+    --brand-1-dark: 258 72% 50%;
+    --brand-1-darker: 258 70% 34%;
+    --brand-1-darkest: 258 74% 18%;
+
+    --brand-2-lightest: 332 72% 96%;
+    --brand-2-lighter: 332 72% 82%;
+    --brand-2: 332 72% 68%;
+    --brand-2-dark: 332 62% 48%;
+    --brand-2-darker: 332 64% 34%;
+    --brand-2-darkest: 332 70% 18%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 35.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 47.5%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 100%;
+    --ring: var(--brand-1);
+    --chart-1: 12 76% 35%;
+    --chart-2: 173 58% 25%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 35%;
+    --chart-5: 27 87% 35%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: var(--brand-1);
+  }
+
+  .dark {
+    --background: 0 0% 6%;
+    --page: 0 0% 12%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 11%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 258 90% 66%;
+    --primary-rgb: 139, 92, 246;
+    --primary-glow: 232, 116, 170;
+    --primary-foreground: 0 0% 98%;
+
+    --brand-1-lightest: 258 90% 96%;
+    --brand-1-lighter: 258 90% 84%;
+    --brand-1-light: 258 90% 74%;
+    --brand-1: 258 90% 66%;
+    --brand-1-dark: 258 72% 50%;
+    --brand-1-darker: 258 70% 34%;
+    --brand-1-darkest: 258 74% 18%;
+
+    --brand-2-lightest: 332 72% 96%;
+    --brand-2-lighter: 332 72% 82%;
+    --brand-2: 332 72% 68%;
+    --brand-2-dark: 332 62% 48%;
+    --brand-2-darker: 332 64% 34%;
+    --brand-2-darkest: 332 70% 18%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 8%;
+    --ring: var(--brand-1);
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: var(--brand-1);
+  }
+
+  *,
+  *::before,
+  *::after {
+    border-color: hsl(var(--border));
+  }
+
+  *:focus,
+  *:focus-visible {
+    --tw-ring-color: hsl(var(--brand-1)) !important;
+    --tw-ring-offset-color: transparent !important;
+  }
+
+  *:focus-visible {
+    outline: none;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .responsive {
+    @apply w-full md:max-w-10/12 lg:max-w-10/12 xl:max-w-8/12 2xl:max-w-6/12;
+  }
+
+  .center {
+    @apply mx-auto;
+  }
+}
+
+/* Tailwind v4 preflight no longer resets anchor underlines */
+a {
+  text-decoration: none;
+}
+
+/* ─── Keyframes ─── */
+
+@keyframes intense-glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 40px rgba(68, 72, 238, 0.18),
+      0 0 60px rgba(68, 72, 238, 0.12),
+      0 0 80px rgba(68, 72, 238, 0.08),
+      inset 0 0 20px rgba(68, 72, 238, 0.06);
+  }
+  50% {
+    box-shadow:
+      0 0 50px rgba(68, 72, 238, 0.24),
+      0 0 70px rgba(68, 72, 238, 0.18),
+      0 0 90px rgba(68, 72, 238, 0.12),
+      inset 0 0 30px rgba(68, 72, 238, 0.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes glass-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@property --preview-card-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 160deg;
+}
+
+@keyframes preview-card-gradient-spin {
+  to {
+    --preview-card-angle: 520deg;
+  }
+}
+
+@keyframes navigation-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes navigation-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+}
+
+@keyframes navigation-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes navigation-zoom-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes assist-url-progress-tv-off {
+  0% {
+    transform: scaleY(1);
+    filter: brightness(1);
+    opacity: 1;
+    box-shadow: 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+  35% {
+    transform: scaleY(0.08);
+    filter: brightness(2.6);
+    opacity: 1;
+    box-shadow:
+      0 0 12px rgba(var(--primary-rgb), 0.9),
+      0 0 28px rgba(var(--primary-rgb), 0.55);
+  }
+  55% {
+    transform: scaleY(0.08);
+    filter: brightness(2.2);
+    opacity: 0.9;
+    box-shadow:
+      0 0 10px rgba(var(--primary-rgb), 0.7),
+      0 0 22px rgba(var(--primary-rgb), 0.4);
+  }
+  100% {
+    transform: scaleY(0.08);
+    filter: brightness(0.35);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(var(--primary-rgb), 0);
+  }
+}
+
+/* ─── Custom Utilities ─── */
+
+@layer utilities {
+  /* Animation utilities */
+  .animate-intense-glow {
+    animation: intense-glow-pulse 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 15%,
+      rgba(255, 255, 255, 0.8) 50%,
+      rgba(255, 255, 255, 0.5) 85%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: glass-shimmer 3s linear infinite;
+  }
+
+  .animate-preview-card-gradient {
+    animation: preview-card-gradient-spin 22s linear infinite;
+  }
+
+  /* Navigation menu blur */
+  .navigation-blur {
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(34px) saturate(185%) brightness(1.08);
+    backdrop-filter: blur(34px) saturate(185%) brightness(1.08);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    box-shadow:
+      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      0 2px 8px 0 rgba(31, 38, 135, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.07) 50%,
+        rgba(255, 255, 255, 0.03) 75%,
+        rgba(255, 255, 255, 0.15) 100%
+      );
+      pointer-events: none;
+      z-index: -1;
+      border-radius: inherit;
+      opacity: 0.6;
+    }
+
+    .dark & {
+      background: rgba(17, 18, 24, 0.62);
+      -webkit-backdrop-filter: blur(34px) saturate(185%) brightness(0.92);
+      backdrop-filter: blur(34px) saturate(185%) brightness(0.92);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.5),
+        0 2px 8px 0 rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+
+      &::before {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.06) 0%,
+          rgba(255, 255, 255, 0.015) 25%,
+          rgba(255, 255, 255, 0.03) 50%,
+          rgba(255, 255, 255, 0.015) 75%,
+          rgba(255, 255, 255, 0.06) 100%
+        );
+        opacity: 0.4;
+      }
+    }
+  }
+
+  /* Card content blur */
+  .card-content-blur {
+    background:
+      radial-gradient(
+        circle at 8% 0%,
+        hsl(var(--brand-1) / 0.045),
+        transparent 34%
+      ),
+      radial-gradient(
+        circle at 94% 10%,
+        hsl(var(--brand-2) / 0.04),
+        transparent 34%
+      ),
+      hsl(var(--background) / 0.35);
+    -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+    backdrop-filter: blur(24px) saturate(180%) brightness(1.1);
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 calc(var(--radius)) calc(var(--radius));
+
+    .dark & {
+      background:
+        radial-gradient(
+          circle at 8% 0%,
+          hsl(var(--brand-1) / 0.08),
+          transparent 36%
+        ),
+        radial-gradient(
+          circle at 94% 10%,
+          hsl(var(--brand-2) / 0.055),
+          transparent 36%
+        ),
+        rgb(255 255 255 / 0.025);
+      -webkit-backdrop-filter: blur(24px) saturate(180%) brightness(0.9);
+      backdrop-filter: blur(24px) saturate(180%) brightness(0.9);
+    }
+  }
+
+  /* Metric card background */
+  .metric-card-bg {
+    background: hsl(var(--background) / 0.76);
+    border: 1px solid hsl(var(--border) / 0.58);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.65),
+      0 16px 36px -30px rgb(15 23 42 / 0.42);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .dark .metric-card-bg {
+    background: rgb(255 255 255 / 0.035);
+    border-color: rgb(255 255 255 / 0.075);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 18px 48px -34px rgb(0 0 0 / 0.86);
+  }
+
+  /* Admin card blur */
+  .admin-page-shell .ui-card-surface,
+  .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-4']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-3']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-2.5']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-4']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-5']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-6']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    backdrop-filter: blur(16px) saturate(140%) !important;
+  }
+
+  .dark .admin-page-shell .ui-card-surface,
+  .dark .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-4']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .dark .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-3']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .dark .admin-page-shell :is(div, a)[class*='rounded-lg'][class*='border'][class*='p-2.5']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .dark .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-4']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .dark .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-5']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']),
+  .dark .admin-page-shell :is(div, a)[class*='rounded-xl'][class*='border'][class*='p-6']:not([class*='bg-red-']):not([class*='bg-orange-']):not([class*='bg-amber-']):not([class*='bg-emerald-']):not([class*='bg-blue-']):not([class*='bg-primary']):not([class*='bg-destructive']) {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+    backdrop-filter: blur(16px) saturate(140%) !important;
+  }
+}
+
+/* ─── Component Overrides ─── */
+
+/* Sidebar menu item button offset — Turbopack CSS parser workaround */
+.sidebar-menu-item-btn-offset > button {
+  top: calc(var(--spacing) * 4);
+}

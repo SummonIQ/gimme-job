@@ -1,0 +1,25 @@
+{
+  "family": "greenhouse",
+  "role": "Senior Software Engineer",
+  "company": "Fixture Co",
+  "submitPath": "/fixtures/greenhouse/submit",
+  "confirmationPhrase": "Application submitted!",
+  "confirmationPath": "/fixtures/greenhouse/confirmation",
+  "steps": [
+    { "label": "Contact", "sectionId": "section_contact" },
+    { "label": "Resume", "sectionId": "section_resume" },
+    { "label": "Questions", "sectionId": "section_questions" },
+    { "label": "Review", "sectionId": "section_review" }
+  ],
+  "fields": {
+    "first_name": { "selector": "#first_name", "required": true },
+    "last_name": { "selector": "#last_name", "required": true },
+    "email": { "selector": "#email", "required": true },
+    "phone": { "selector": "#phone", "required": false },
+    "resume": { "selector": "#resume", "required": true, "kind": "file" },
+    "cover_letter": { "selector": "#cover_letter", "required": false, "kind": "file" },
+    "question_authorized": { "selector": "#question_authorized", "required": true, "kind": "select" },
+    "question_years": { "selector": "#question_years", "required": true }
+  },
+  "submitSelector": "#submit_app"
+}
