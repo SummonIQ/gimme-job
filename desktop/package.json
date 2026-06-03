@@ -3,16 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/electron/main.js",
   "scripts": {
     "build:main": "tsc -p tsconfig.electron.json",
     "build:renderer": "vite build",
+    "build": "bun run build:main && bun run build:renderer",
+    "dist": "bun run prepare-playwright && bun run build && node node_modules/electron-builder/out/cli/cli.js --mac dmg --arm64",
+    "prepare-playwright": "bun scripts/prepare-playwright-browsers.ts",
     "dev": "bun scripts/dev.ts",
     "test": "vitest run"
   },
   "dependencies": {
+    "playwright": "^1.56.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-resizable-panels": "^3.0.6"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.0",
@@ -20,9 +25,47 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "electron": "^41.3.0",
+    "electron-builder": "^25.1.8",
     "jsdom": "^27.0.1",
     "typescript": "^5",
     "vite": "^8.0.9",
     "vitest": "^4.0.14"
+  },
+  "build": {
+    "appId": "com.gimme-job.desktop",
+    "productName": "Gimme Job",
+    "publish": null,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist-renderer/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "playwright-browsers",
+        "to": "playwright-browsers",
+        "filter": ["**/*"]
+      }
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64"]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "identity": null
+    },
+    "dmg": {
+      "title": "Gimme Job ${version}",
+      "contents": [
+        { "x": 130, "y": 220, "type": "file" },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    }
   }
 }

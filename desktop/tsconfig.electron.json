@@ -11,6 +11,9 @@
     "target": "ES2022",
     "types": ["node"]
   },
-  "exclude": ["electron/**/__tests__/**"],
-  "include": ["electron/**/*.ts", "scripts/**/*.ts"]
+  "exclude": [
+    "electron/**/__tests__/**",
+    "electron/admin/bundle-entry.ts"
+  ],
+  "include": ["electron/**/*.ts", "electron/**/*.cts", "scripts/**/*.ts"]
 }

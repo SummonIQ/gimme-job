@@ -1,0 +1,14 @@
+<!doctype html>
+<main data-provider="personio">
+  <form aria-label="Personio custom question">
+    <label>First name <input name="first_name" required></label>
+    <label>Preferred office location *
+      <select name="answers[office_location]" required>
+        <option value="">Select office</option>
+        <option>Remote</option>
+        <option>Berlin</option>
+      </select>
+    </label>
+    <button type="submit" data-testid="application-submit">Submit application</button>
+  </form>
+</main>

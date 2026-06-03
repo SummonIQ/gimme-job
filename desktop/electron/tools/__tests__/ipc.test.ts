@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import type { DesktopAuditWriter } from '../../audit/writer';
 import type { DesktopIpcHandler, DesktopIpcMain } from '../../ipc';
 import { DESKTOP_TOOL_RPC_CHANNEL, registerDesktopToolIpc } from '../ipc';
 import type { DesktopToolRegistry } from '../registry';
@@ -51,6 +52,47 @@ describe('registerDesktopToolIpc', () => {
       },
       ok: true,
       tool: 'navigate',
+    });
+  });
+
+  it('writes an audit row for each desktop tool call when configured', async () => {
+    const ipcMain = new FakeIpcMain();
+    const auditRows: unknown[] = [];
+    const auditWriter: DesktopAuditWriter = {
+      async write(row) {
+        auditRows.push(row);
+        return { created: 1, ids: ['audit-1'] };
+      },
+      async writeBatch(rows) {
+        auditRows.push(...rows);
+        return { created: rows.length, ids: rows.map((_, i) => `audit-${i}`) };
+      },
+    };
+    const registry: DesktopToolRegistry = {
+      async call(request) {
+        return {
+          data: { value: 'SecretNameAlpha' },
+          ok: true,
+          tool: request.tool,
+        };
+      },
+      listTools() {
+        return ['identity_load'];
+      },
+    };
+
+    registerDesktopToolIpc(ipcMain, registry, { auditWriter });
+
+    await ipcMain.invoke(DESKTOP_TOOL_RPC_CHANNEL, {
+      input: { key: 'first_name' },
+      tool: 'identity_load',
+    });
+
+    expect(auditRows).toHaveLength(1);
+    expect(auditRows[0]).toMatchObject({
+      action: 'identity_read',
+      outcome: 'ok',
+      toolName: 'identity_load',
     });
   });
 });

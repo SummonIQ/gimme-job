@@ -1,0 +1,12 @@
+<!doctype html>
+<main data-provider="teamtailor">
+  <form aria-label="Teamtailor custom question">
+    <label>First name <input name="candidate[first_name]" required></label>
+    <fieldset>
+      <legend>Are you comfortable working remotely? *</legend>
+      <label><input type="radio" name="questions[remote]" value="yes" required> Yes</label>
+      <label><input type="radio" name="questions[remote]" value="no"> No</label>
+    </fieldset>
+    <button type="submit" data-controller="submit-button">Send application</button>
+  </form>
+</main>

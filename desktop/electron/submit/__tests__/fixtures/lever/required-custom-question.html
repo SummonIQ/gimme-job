@@ -1,0 +1,14 @@
+<!doctype html>
+<main data-provider="lever">
+  <form aria-label="Lever custom question">
+    <label>Full name <input id="name" name="name" required></label>
+    <label>Preferred work location *
+      <select name="preferred_location" required>
+        <option value="">Select one</option>
+        <option>Remote</option>
+        <option>Hybrid</option>
+      </select>
+    </label>
+    <button id="btn-submit" type="submit" data-qa="btn-submit">Submit application</button>
+  </form>
+</main>

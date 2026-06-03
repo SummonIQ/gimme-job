@@ -1,0 +1,14 @@
+<!doctype html>
+<main data-provider="recruitee">
+  <form aria-label="Recruitee custom question">
+    <label>Full name <input name="candidate[name]" required></label>
+    <label>Do you need visa sponsorship? *
+      <select name="questions[sponsorship]" required>
+        <option value="">Select one</option>
+        <option>No</option>
+        <option>Yes</option>
+      </select>
+    </label>
+    <button type="submit" data-testid="apply-submit">Submit application</button>
+  </form>
+</main>

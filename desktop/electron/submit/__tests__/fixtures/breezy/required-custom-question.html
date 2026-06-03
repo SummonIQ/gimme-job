@@ -1,0 +1,12 @@
+<!doctype html>
+<main data-provider="breezy">
+  <form aria-label="Breezy custom question">
+    <label>Full name <input name="name" required></label>
+    <fieldset>
+      <legend>Are you authorized to work in the United States? *</legend>
+      <label><input type="radio" name="work_authorized" value="yes" required> Yes</label>
+      <label><input type="radio" name="work_authorized" value="no"> No</label>
+    </fieldset>
+    <button type="submit" data-testid="candidate-submit">Submit application</button>
+  </form>
+</main>

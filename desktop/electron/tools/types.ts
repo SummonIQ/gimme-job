@@ -63,6 +63,9 @@ export interface DomSnapshotResult {
   html: string;
   title: string;
   url: string;
+  // Optional per-field viewport coordinates keyed by selector ('#id' or
+  // '[name=name]'). Used to sort fill queues by visual top-to-bottom.
+  positions?: Record<string, { top: number; left: number }>;
 }
 
 export interface ReadElementInput {
